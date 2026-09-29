@@ -20,12 +20,12 @@ header{position:sticky;top:0;z-index:30;background:rgba(251,248,238,.96);backdro
 .logo{font-size:25px;font-weight:800;color:var(--gd)}.logo span{color:var(--g)}
 .links{display:flex;gap:24px;font-weight:700;font-size:15px}.links a:hover{color:var(--g)}
 .cartbtn{background:var(--g);color:#fff;border:0;border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px}
-.hero{position:relative;display:flex;align-items:center;aspect-ratio:1800/720;max-height:660px;container-type:inline-size;background:#e9f2dc;overflow:hidden}
+.hero{position:relative;width:100%;max-width:2200px;margin:0 auto;display:flex;align-items:center;aspect-ratio:1800/660;container-type:inline-size;background:#e9f2dc;overflow:hidden}
 .hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center}
-.hc{position:relative;padding:3cqw 0 3cqw 6cqw;width:52cqw}
+.hc{position:relative;padding:3cqw 0 3cqw 7cqw;width:46cqw}
 .pill{display:inline-block;background:#e8f3df;color:var(--g);font-weight:800;font-size:clamp(12px,1.1cqw,15px);padding:.5em 1.1em;border-radius:999px;margin-bottom:1.4cqw;border:1px solid #cfe6bf}
-h1{font-size:clamp(32px,4.6cqw,70px);line-height:1.06;margin:0 0 1.2cqw;font-weight:800;color:var(--gd)}h1 em{font-style:normal;color:var(--g)}
-.lead{font-size:clamp(14px,1.45cqw,20px);color:#3f5142;max-width:34em;margin:0 0 1.5cqw;font-weight:600}
+h1{font-size:clamp(32px,4.6cqw,70px);line-height:1.06;margin:0 0 1.2cqw;font-weight:800;color:var(--gd)}h1 em{font-style:normal;color:var(--g);display:block}
+.lead{font-size:clamp(14px,1.45cqw,20px);color:#3f5142;max-width:100%;margin:0 0 1.5cqw;font-weight:600}
 .facts{display:flex;flex-wrap:wrap;gap:.6em;margin:0 0 1.8cqw;padding:0;list-style:none;font-weight:800;font-size:clamp(12px,1.1cqw,15px);color:var(--gd)}
 .facts li{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:999px;padding:.4em 1em}
 .btns{display:flex;gap:12px;flex-wrap:wrap}
@@ -147,7 +147,7 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
  <div class="head"><h2 class="serif">Shop</h2><p>Pick your items and how you like them cut, then add to cart.</p></div>
  <div class="tabs" id="tabs"></div>
  <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
- <noscript><p class="empty">Please turn on JavaScript to see our items, or WhatsApp us on +918123806957.</p></noscript>
+ <noscript><p class="empty">Please turn on JavaScript to see our items, or WhatsApp us on +91 8123806957.</p></noscript>
  <p class="note">Every pack is washed, cut fresh for your order and packed hygienically. Please refrigerate after delivery and use within the time shown on each item.</p>
 </div></section>
 
@@ -201,7 +201,7 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
 
 <section id="contact" style="padding-top:0"><div class="wrap"><div class="cta">
  <h2 class="serif">Questions? Talk to us</h2><p>Bengaluru delivery. Call or WhatsApp to check today's availability.</p>
- <a class="phone" href="tel:+918123806957">+918123806957</a>
+ <a class="phone" href="tel:+918123806957">+91 8123806957</a>
  <div class="btns" style="justify-content:center"><a class="btn b3" href="https://wa.me/918123806957" target="_blank" rel="noopener">WhatsApp us</a><a class="btn b2" href="tel:+918123806957">Call us</a></div>
 </div></div></section>
 </main>
@@ -250,7 +250,7 @@ const emoji=p=>{const s=((p.name||"")+" "+(p.cat||"")).toLowerCase();for(const[k
 function tabs(){$("tabs").innerHTML=cats().length>1?cats().map(k=>`<button class="tab${k==cat?" on":""}" data-a="tab" data-c="${esc(k)}">${esc(k)}</button>`).join(""):""}
 function grid(){
  const d=dpct();
- if(!P.length){$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+918123806957</b></a></p>';return}
+ if(!P.length){$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+91 8123806957</b></a></p>';return}
  $("grid").innerHTML=P.filter(p=>cat=="All"||(p.cat||"Others")==cat).map(p=>{
   const out=p.active===false,cs=cuts(p),c=curCut(p),q=cart[key(p,c)]?.q||0;
   const ctl=out?`<button class="add" disabled>Unavailable</button>`:q?`<div class="qty"><button data-a="q" data-id="${esc(p.id)}" data-d="-1" aria-label="Less">−</button><span>${q}</span><button data-a="q" data-id="${esc(p.id)}" data-d="1" aria-label="More">+</button></div>`:`<button class="add" data-a="q" data-id="${esc(p.id)}" data-d="1">Add to cart</button>`;
@@ -306,7 +306,7 @@ function info(){
   ["Where do you deliver?",areas.length?"We currently deliver to: "+areas.join(", ")+".":"We deliver across Bengaluru. Message us your area on WhatsApp to confirm."],
   ["What is the minimum order?",MIN()?"The minimum order is ₹"+MIN()+".":"There is no minimum order. Delivery is ₹"+DEL()+", and free above ₹"+FREE()+"."],
   ["Do you accept cash on delivery?","Yes, you can pay in cash when your order arrives."+(qrOK?" Online QR payment is also available.":"")],
-  ["Can I order through WhatsApp?","Yes. Add items to your cart and tap Place Order on WhatsApp, or simply message us on +918123806957."],
+  ["Can I order through WhatsApp?","Yes. Add items to your cart and tap Place Order on WhatsApp, or simply message us on +91 8123806957."],
   ["Can I choose how vegetables are cut?","Yes. Items list their available cutting types (like small cubes, long strips or round slices). Message us for anything special."],
   ["What are your delivery timings?",S.timings||"Message us on WhatsApp for today's delivery slot."]
  ];
@@ -345,7 +345,7 @@ async function load(){
   if(!c.empty){$("services").hidden=false;$("sv").innerHTML=c.docs.map(d=>d.data()).map(s=>`<div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p><b>${esc(s.price)}</b></div>`).join("")}
  }catch(err){
   console.error(err);info();
-  $("grid").innerHTML='<p class="empty">We could not load our items right now. <button class="tab" id="retry">Try again</button><br><br>Or order directly on WhatsApp: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+918123806957</b></a></p>';
+  $("grid").innerHTML='<p class="empty">We could not load our items right now. <button class="tab" id="retry">Try again</button><br><br>Or order directly on WhatsApp: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+91 8123806957</b></a></p>';
   $("retry").onclick=load;
  }
 }
