@@ -35,6 +35,9 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-ra
 .ord ul{margin:6px 0;padding-left:18px}
 #login{max-width:360px;margin:60px auto;padding:0 16px}
 .msg{color:#b3261e;font-size:14px;margin-top:8px}.ok{color:var(--g)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}.chip{display:flex;align-items:center;gap:6px;margin:0;border:1px solid #c9d1bd;border-radius:999px;padding:7px 12px;font-weight:600;font-size:14px;background:#fff}.chip input{width:auto}
+.stk{display:flex;align-items:center;gap:5px;margin:0;font-size:13px;white-space:nowrap}.stk input{width:auto}
+.tag.no{background:#f8d7d4}.tag.hid{background:#e5e5e5}.hint{color:var(--mut);font-size:13px;margin:4px 0 0}
 .prev{width:110px;height:110px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 </style>
 </head>
@@ -60,7 +63,9 @@ const app=initializeApp({apiKey:"AIzaSyATqn1InnyTkyHqIfbLw4LZQ4fGLzwf52A",authDo
 const db=getFirestore(app),auth=getAuth(app);
 const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const TABS=["Orders","Products","Services","Festival & Wishes"];
+const TABS=["Orders","Products","Services","Store Info","Reviews","Festival & Wishes"];
+const FORMTABS=["Products","Services","Store Info","Reviews"];
+const CUTS=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
 let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false;
 
 $("lg").onclick=async()=>{$("lm").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lm").textContent="Wrong email or password."}};
@@ -74,12 +79,12 @@ function listen(){
  onSnapshot(collection(db,"products"),s=>{P=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.cat).localeCompare(b.cat)||String(a.name).localeCompare(b.name));draw()},err);
  onSnapshot(collection(db,"services"),s=>{S=s.docs.map(d=>({id:d.id,...d.data()}));draw()},err);
  onSnapshot(collection(db,"orders"),s=>{O=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));draw()},err);
- onSnapshot(doc(db,"settings","site"),s=>{ST=s.exists()?s.data():{};if(tab.startsWith("Fest")&&!document.activeElement.closest?.("#view"))draw()},err);
+ onSnapshot(doc(db,"settings","site"),s=>{ST=s.exists()?s.data():{};if((tab.startsWith("Fest")||tab=="Store Info"||tab=="Reviews")&&!document.activeElement.closest?.("#view"))draw()},err);
 }
 function draw(){
  $("tabs").innerHTML=TABS.map(t=>'<button class="tab'+(t==tab?" on":"")+'" data-t="'+t+'">'+t+(t=="Orders"?" ("+O.filter(o=>o.status=="New").length+" new)":"")+"</button>").join("");
- if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#view")&&(tab=="Products"||tab.startsWith("Fest")||tab=="Services")&&document.activeElement.tagName!=="BODY")return;
- $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Services"?vServices():vFest();
+ if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#view")&&(FORMTABS.includes(tab)||tab.startsWith("Fest"))&&document.activeElement.tagName!=="BODY")return;
+ $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Services"?vServices():tab=="Store Info"?vInfo():tab=="Reviews"?vReviews():vFest();
  if(tab=="Products")prev();
 }
 $("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";img="";$("view").innerHTML="";draw()}};
@@ -90,28 +95,38 @@ function vOrders(){
  return O.map(o=>{
   const t=o.createdAt?new Date(o.createdAt.seconds*1000).toLocaleString("en-IN"):"";
   return '<div class="ord"><div class="row"><b>'+esc(o.name)+'</b><span class="tag st-'+esc(o.status)+'">'+esc(o.status)+"</span><small>"+t+'</small></div>'
-  +'<div><a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+"</a> · "+esc(o.address)+"</div><ul>"+(o.items||[]).map(i=>"<li>"+esc(i.n)+" ("+esc(i.u)+") × "+i.q+" = ₹"+i.p*i.q+"</li>").join("")+"</ul>"
-  +"<div><b>Total ₹"+o.total+"</b> · "+esc(o.payment)+'</div><div class="row" style="margin-top:8px">'
+  +'<div><a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+"</a> · "+esc(o.address)+"</div><ul>"+(o.items||[]).map(i=>"<li>"+esc(i.n)+" ("+esc(i.u)+(i.c?", "+esc(i.c):"")+") × "+i.q+" = ₹"+i.p*i.q+"</li>").join("")+"</ul>"
+  +"<div><b>Total ₹"+o.total+"</b> · "+esc(o.payment||o.pay)+'</div><div class="row" style="margin-top:8px">'
   +'<select data-os="'+o.id+'" style="width:auto">'+["New","Preparing","Delivered","Cancelled"].map(s=>"<option"+(s==o.status?" selected":"")+">"+s+"</option>").join("")+"</select>"
   +'<a class="btn s" target="_blank" href="'+wa(o.phone,"Hello "+o.name+", your Fresh Cut order (Rs."+o.total+") is confirmed. Thank you!")+'">WhatsApp customer</a>'
   +'<button class="btn d" data-od="'+o.id+'">Delete</button></div></div>';
  }).join("");
 }
 function vProducts(){
- const cats=[...new Set(["Vegetables","Fruits","Mixed & Salad","Ready to Cook",...P.map(p=>p.cat).filter(Boolean)])];
+ const cats=[...new Set(["Vegetables","Fruits","Mixed & Salad","Ready to Cook","Combo Packs",...P.map(p=>p.cat).filter(Boolean)])];
  const e=P.find(p=>p.id==editId)||{};
+ const ec=Array.isArray(e.cuts)?e.cuts:[];
+ const other=ec.filter(c=>!CUTS.includes(c)).join(", ");
  return '<div class="box"><h2>'+(editId?"Edit product":"Add new product")+"</h2>"
  +'<label>Name</label><input id="pn" value="'+esc(e.name)+'">'
  +'<div class="g2"><div><label>Category</label><input id="pc" list="cl" value="'+esc(e.cat||"Vegetables")+'"><datalist id="cl">'+cats.map(c=>'<option value="'+esc(c)+'">').join("")+'</datalist></div>'
  +'<div><label>Pack size (e.g. 500 g)</label><input id="pu" value="'+esc(e.unit)+'"></div></div>'
+ +'<label>Cutting type (tick one or more; customers choose if you tick several)</label><div class="chips">'+CUTS.map(c=>'<label class="chip"><input type="checkbox" class="cutck" value="'+esc(c)+'"'+(ec.includes(c)?" checked":"")+'>'+esc(c)+"</label>").join("")+"</div>"
+ +'<label>Other cutting types (optional, separate with commas)</label><input id="po" placeholder="e.g. Thin sticks, Half moons" value="'+esc(other)+'">'
+ +'<label>What is inside / short note (optional)</label><input id="pd" placeholder="e.g. Carrot + Beans + Potato + Onion" value="'+esc(e.desc)+'">'
  +'<div class="g2"><div><label>Price (₹)</label><input id="pp" type="number" min="0" value="'+esc(e.price)+'"></div>'
- +'<div><label>Photo</label><input id="pf" type="file" accept="image/*"></div></div>'
- +'<img class="prev" id="pv"><label><input type="checkbox" id="pa" style="width:auto" '+(e.active===false?"":"checked")+'> Show on store (untick if out of stock)</label>'
+ +'<div><label>Best within (optional)</label><input id="pb" placeholder="e.g. 2 days" value="'+esc(e.shelf)+'"></div></div>'
+ +'<label>Photo</label><input id="pf" type="file" accept="image/*">'
+ +'<img class="prev" id="pv"><label><input type="checkbox" id="pa" style="width:auto" '+(e.active===false?"":"checked")+'> In stock (untick to show as Out of stock)</label>'
+ +'<label><input type="checkbox" id="px" style="width:auto" '+(e.hide?"checked":"")+'> Hide this item from the store completely</label>'
  +'<button class="btn" id="ps">'+(editId?"Save changes":"Add product")+'</button> '+(editId?'<button class="btn s" id="pcx">Cancel</button>':"")+'<div class="msg ok" id="pm"></div></div>'
- +'<div class="box"><h2>All products ('+P.length+")</h2>"+(P.map(p=>'<div class="item">'+(p.img?'<img src="'+p.img+'">':'<div class="ph">🥬</div>')
- +'<div class="m"><b>'+esc(p.name)+"</b><br><small>"+esc(p.cat)+" · "+esc(p.unit)+(p.active===false?" · HIDDEN":"")+"</small></div>"
+ +'<div class="box"><h2>All products ('+P.length+")</h2>"
+ +(P.length?"":'<p>No products yet. Add your first one above, or <button class="btn s" id="seed">add starter products</button> and edit them afterwards.</p>')
+ +P.map(p=>'<div class="item">'+(p.img?'<img src="'+p.img+'">':'<div class="ph">🥬</div>')
+ +'<div class="m"><b>'+esc(p.name)+"</b> "+(p.active===false?'<span class="tag no">Out of stock</span> ':"")+(p.hide?'<span class="tag hid">Hidden</span>':"")+"<br><small>"+esc(p.cat)+" · "+esc(p.unit)+(Array.isArray(p.cuts)&&p.cuts.length?" · Cut: "+esc(p.cuts.join(", ")):"")+"</small></div>"
+ +'<label class="stk"><input type="checkbox" data-pa="'+p.id+'"'+(p.active===false?"":" checked")+'> In stock</label>'
  +'₹<input class="p" type="number" min="0" value="'+p.price+'" data-pr="'+p.id+'">'
- +'<button class="btn s" data-pe="'+p.id+'">Edit</button><button class="btn d" data-pd="'+p.id+'">Delete</button></div>').join("")||"<p>No products yet. Add your first one above.</p>")+"</div>";
+ +'<button class="btn s" data-pe="'+p.id+'">Edit</button><button class="btn d" data-pd="'+p.id+'">Delete</button></div>').join("")+"</div>";
 }
 function prev(){const v=$("pv");const src=img||(P.find(p=>p.id==editId)||{}).img;if(v&&src){v.src=src;v.style.display="block"}}
 function vServices(){
@@ -119,6 +134,25 @@ function vServices(){
  +'<label>Description</label><textarea id="sd" rows="2"></textarea><label>Price text</label><input id="sp" placeholder="e.g. From ₹300 or Ask for price">'
  +'<button class="btn" id="ss">Add service</button></div><div class="box"><h2>Services ('+S.length+")</h2>"
  +(S.map(s=>'<div class="item"><div class="m"><b>'+esc(s.name)+"</b><br><small>"+esc(s.desc)+" · "+esc(s.price)+'</small></div><button class="btn d" data-sd="'+s.id+'">Delete</button></div>').join("")||"<p>No services yet.</p>")+"</div>";
+}
+function vInfo(){
+ return '<div class="box"><h2>Store information (shown on the website)</h2>'
+ +'<label>Delivery areas (separate with commas)</label><textarea id="ia" rows="2" placeholder="e.g. Whitefield, Marathahalli, Brookefield, Hoodi, KR Puram">'+esc(ST.areas)+'</textarea>'
+ +'<div class="g2"><div><label>Delivery charge (₹)</label><input id="ic" type="number" min="0" value="'+esc(ST.delCharge??20)+'"></div>'
+ +'<div><label>Free delivery above (₹)</label><input id="if" type="number" min="0" value="'+esc(ST.freeAbove??150)+'"></div>'
+ +'<div><label>Minimum order (₹, 0 for none)</label><input id="im" type="number" min="0" value="'+esc(ST.minOrder??0)+'"></div><div></div></div>'
+ +'<label>Delivery timings</label><input id="it" placeholder="e.g. 7 AM to 12 noon and 4 PM to 7 PM" value="'+esc(ST.timings)+'">'
+ +'<label>Same-day order cutoff</label><input id="io" placeholder="e.g. Order before 10 AM for same-day delivery" value="'+esc(ST.cutoff)+'">'
+ +'<label>About us (shown in the About section)</label><textarea id="iu" rows="4" placeholder="Tell customers who you are and how you prepare the food">'+esc(ST.about)+'</textarea>'
+ +'<button class="btn" id="isv">Save</button><div class="msg ok" id="im2"></div></div>';
+}
+function vReviews(){
+ const R=Array.isArray(ST.reviews)?ST.reviews:[];
+ return '<div class="box"><h2>Add a customer review</h2><p class="hint">Only add real reviews from real customers.</p>'
+ +'<div class="g2"><div><label>Customer name</label><input id="rn"></div><div><label>Area (optional)</label><input id="ra"></div></div>'
+ +'<label>Stars</label><select id="rs"><option>5</option><option>4</option><option>3</option></select>'
+ +'<label>Review</label><textarea id="rt" rows="3"></textarea><button class="btn" id="rv">Add review</button></div>'
+ +'<div class="box"><h2>Reviews ('+R.length+")</h2>"+(R.map((r,i)=>'<div class="item"><div class="m"><b>'+esc(r.name)+"</b> <small>"+esc(r.area)+" · "+"★".repeat(+r.stars||5)+"</small><br>"+esc(r.text)+'</div><button class="btn d" data-rd="'+i+'">Delete</button></div>').join("")||"<p>No reviews yet. The reviews section stays hidden on the store until you add one.</p>")+"</div>";
 }
 function vFest(){
  const ph=[...new Map(O.filter(o=>o.phone).map(o=>[String(o.phone).replace(/\D/g,"").slice(-10),o])).values()];
@@ -136,6 +170,7 @@ function vFest(){
 document.addEventListener("change",async e=>{
  const t=e.target;
  if(t.dataset.os)await updateDoc(doc(db,"orders",t.dataset.os),{status:t.value});
+ if(t.dataset.pa)await updateDoc(doc(db,"products",t.dataset.pa),{active:t.checked});
  if(t.dataset.pr)await updateDoc(doc(db,"products",t.dataset.pr),{price:Number(t.value)||0});
  if(t.id=="pf"&&t.files[0]){img=await shrink(t.files[0]);prev()}
 });
@@ -149,12 +184,21 @@ document.addEventListener("click",async e=>{
  if(t.id=="ps"){
   const n=$("pn").value.trim();if(!n||$("pp").value===""){alert("Please enter a name and price.");return}
   const old=P.find(p=>p.id==editId)||{};
-  const data={name:n,cat:$("pc").value.trim()||"Products",unit:$("pu").value.trim(),price:Number($("pp").value),active:$("pa").checked,img:img||old.img||""};
+  const cuts=[...document.querySelectorAll(".cutck:checked")].map(x=>x.value).concat($("po").value.split(",").map(x=>x.trim()).filter(Boolean));
+  const data={name:n,cat:$("pc").value.trim()||"Products",unit:$("pu").value.trim(),price:Number($("pp").value),active:$("pa").checked,hide:$("px").checked,cuts,desc:$("pd").value.trim(),shelf:$("pb").value.trim(),img:img||old.img||""};
   try{if(editId)await setDoc(doc(db,"products",editId),data);else await addDoc(collection(db,"products"),data);
    editId="";img="";$("view").innerHTML="";draw();alert("Saved.")}catch(x){alert("Could not save. If the photo is very large, try a smaller one.")}
  }
  if(t.id=="ss"){const n=$("sn").value.trim();if(!n)return;await addDoc(collection(db,"services"),{name:n,desc:$("sd").value.trim(),price:$("sp").value.trim(),active:true});$("view").innerHTML="";draw()}
- if(t.id=="fv"){await setDoc(doc(db,"settings","site"),{fest:$("fn").value.trim(),pct:Number($("fp").value)||0,start:$("fs").value,end:$("fe").value,wish:$("fw").value.trim(),show:$("fo").checked});$("fm").textContent="Saved. The store is updated."}
+ if(t.id=="fv"){await setDoc(doc(db,"settings","site"),{fest:$("fn").value.trim(),pct:Number($("fp").value)||0,start:$("fs").value,end:$("fe").value,wish:$("fw").value.trim(),show:$("fo").checked},{merge:true});$("fm").textContent="Saved. The store is updated."}
+ if(t.id=="isv"){await setDoc(doc(db,"settings","site"),{areas:$("ia").value.trim(),delCharge:Number($("ic").value)||0,freeAbove:Number($("if").value)||0,minOrder:Number($("im").value)||0,timings:$("it").value.trim(),cutoff:$("io").value.trim(),about:$("iu").value.trim()},{merge:true});$("im2").textContent="Saved. The store is updated."}
+ if(t.id=="rv"){const n=$("rn").value.trim(),x=$("rt").value.trim();if(!n||!x){alert("Please enter the customer name and review.");return}
+  const R=[...(Array.isArray(ST.reviews)?ST.reviews:[]),{name:n,area:$("ra").value.trim(),stars:Number($("rs").value),text:x}];
+  await setDoc(doc(db,"settings","site"),{reviews:R},{merge:true});ST.reviews=R;$("view").innerHTML="";draw()}
+ if(d.rd!==undefined&&confirm("Delete this review?")){const R=(ST.reviews||[]).filter((_,i)=>i!=d.rd);await setDoc(doc(db,"settings","site"),{reviews:R},{merge:true});ST.reviews=R;$("view").innerHTML="";draw()}
+ if(t.id=="seed"&&confirm("Add a few starter products (you can edit prices and photos afterwards)?")){
+  const L=[["Chopped Carrot","Vegetables","250 g",40,["Small cubes","Round slices","Long strips"]],["Chopped Beans","Vegetables","250 g",45,["Fine chop"]],["Cut Onion","Vegetables","250 g",30,["Sliced","Small cubes"]],["Mixed Vegetables","Ready to Cook","500 g",90,["Small cubes"]],["Sambar Pack","Combo Packs","500 g",99,["Small cubes"],"Carrot + Beans + Drumstick + Potato + Onion"],["Salad Pack","Combo Packs","400 g",89,["Round slices"],"Carrot + Cucumber + Beetroot + Capsicum"]];
+  for(const r of L)await addDoc(collection(db,"products"),{name:r[0],cat:r[1],unit:r[2],price:r[3],cuts:r[4],desc:r[5]||"",shelf:"2 days",active:true,hide:false,img:""});}
 });
 function shrink(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,600/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.72))};i.src=URL.createObjectURL(f)})}
 </script>

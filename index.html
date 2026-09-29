@@ -3,51 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Fresh cut vegetables, fruits and ready-to-cook packs delivered at home. Cash on delivery.">
-<title>Fresh Cut Vegetables & Fruits</title>
+<meta name="description" content="Fresh cut vegetables, fruits and ready-to-cook packs delivered at home in Bengaluru. Order on WhatsApp. Cash on delivery.">
+<title>FreshCut - Fresh Cut Vegetables & Fruits, Bengaluru</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--g:#15703a;--gd:#0e4a26;--y:#f7c948;--bg:#fbf8ee;--ink:#1b2a1f;--mut:#61705f;--line:#e8e6d6}
-*{box-sizing:border-box}html{scroll-behavior:smooth}
+:root{--g:#15703a;--gd:#0e4a26;--y:#f7c948;--bg:#fbf8ee;--ink:#1b2a1f;--mut:#61705f;--line:#e8e6d6;--red:#b3261e}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:110px}
+[hidden]{display:none!important}
 body{margin:0;font-family:Nunito,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
 a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer}
 .serif{font-family:'Playfair Display',Georgia,serif}
 .wrap{max-width:1150px;margin:auto;padding:0 20px}
 #banner{background:var(--y);color:var(--gd);text-align:center;font-weight:800;padding:9px 14px;font-size:15px}
-header{position:sticky;top:0;z-index:30;background:rgba(251,248,238,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:30;background:rgba(251,248,238,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .nav{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;max-width:1150px;margin:auto}
 .logo{font-size:25px;font-weight:800;color:var(--gd)}.logo span{color:var(--g)}
 .links{display:flex;gap:24px;font-weight:700;font-size:15px}.links a:hover{color:var(--g)}
 .cartbtn{background:var(--g);color:#fff;border:0;border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px}
-.hero{padding:48px 0 20px}.hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center}
+.hero{padding:44px 0 18px}.hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center}
 .pill{display:inline-block;background:#e8f3df;color:var(--g);font-weight:800;font-size:14px;padding:7px 16px;border-radius:999px;margin-bottom:16px}
 h1{font-size:clamp(38px,6vw,64px);line-height:1.07;margin:0 0 16px;font-weight:800}h1 em{font-style:normal;color:var(--g)}
-.lead{font-size:18px;color:var(--mut);max-width:480px;margin:0 0 24px}
+.lead{font-size:18px;color:var(--mut);max-width:500px;margin:0 0 18px}
+.facts{display:flex;flex-wrap:wrap;gap:8px 10px;margin:0 0 22px;padding:0;list-style:none;font-weight:800;font-size:14px;color:var(--gd)}
+.facts li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px}
 .btns{display:flex;gap:12px;flex-wrap:wrap}
 .btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:800;font-size:16px;border:0}
-.b1{background:var(--g);color:#fff}.b2{background:var(--y);color:var(--gd)}.b3{background:#fff;color:var(--gd)}
+.b1{background:var(--g);color:#fff}.b2{background:var(--y);color:var(--gd)}.b3{background:#fff;color:var(--gd)}.b4{background:#25D366;color:#fff}
 .collage{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.collage img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:22px}
-.collage img:nth-child(2){margin-top:24px}
-.strip{margin-top:30px;background:#fff;border-radius:20px;box-shadow:0 8px 28px rgba(20,60,30,.08);display:grid;grid-template-columns:repeat(4,1fr);padding:18px 8px}
-.strip div{padding:4px 18px;border-right:1px solid var(--line)}.strip div:last-child{border:0}
-.strip b{display:block}.strip small{color:var(--mut)}
+.collage img,.collage .tile{width:100%;aspect-ratio:1;object-fit:cover;border-radius:22px}
+.collage .tile{display:grid;place-items:center;font-size:clamp(52px,9vw,88px)}
+.collage>:nth-child(2){margin-top:24px}
+.t0{background:#fde6c8}.t1{background:#dcefd0}.t2{background:#fbd9d3}.t3{background:#fbf0b8}
+.offer{max-width:1110px;margin:26px auto 0;background:var(--gd);color:#fff;border-radius:18px;padding:14px 20px;text-align:center;font-size:18px}
+.offer b{color:var(--y)}.offer small{display:block;opacity:.85;font-size:14px}
 section{padding:54px 0}
 .head{text-align:center;margin-bottom:24px}.head h2{font-size:clamp(30px,4.5vw,40px);margin:0 0 6px}.head p{margin:0;color:var(--mut)}
 .tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
 .tab{background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 20px;font-weight:800;font-size:15px;color:var(--gd)}
 .tab.on{background:var(--g);color:#fff;border-color:var(--g)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
 .card{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
-.pic{aspect-ratio:4/3;background:linear-gradient(160deg,#f1f8e8,#fff6d8);display:grid;place-items:center;font-size:56px;font-weight:800;color:var(--g)}
+.card.out{opacity:.72}
+.pic{aspect-ratio:4/3;background:linear-gradient(160deg,#f1f8e8,#fff6d8);display:grid;place-items:center;font-size:64px}
 .pic img{width:100%;height:100%;object-fit:cover}
-.info{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1}
-.info h3{margin:0;font-size:17px}.info p{margin:2px 0 10px;color:var(--mut);font-size:13px;flex:1}
+.info{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1;gap:6px}
+.info h3{margin:0;font-size:17px;line-height:1.25}
+.pk{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--mut);font-weight:700}
+.av{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800}
+.av:before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.av.yes{color:var(--g)}.av.no{color:var(--red)}
+.cutb{align-self:flex-start;background:#eef6e6;color:var(--gd);border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:800}
+.cutsel{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--gd)}
+.cutsel select{flex:1;padding:6px 8px;border:1px solid #cfd6c8;border-radius:8px;font:inherit;font-size:13px;background:#fff}
+.desc{margin:0;font-size:13px;color:var(--mut)}
+.shelf{margin:0;font-size:12px;color:var(--mut)}
+.spacer{flex:1}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .price{font-weight:800;color:var(--g);font-size:18px}.price s{color:var(--mut);font-size:13px;font-weight:600}
 .add{background:var(--y);color:var(--gd);border:0;border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px}
+.add:disabled{background:#e6e6dc;color:#8a8f86;cursor:not-allowed}
 .qty{display:flex;align-items:center;gap:8px;background:var(--g);color:#fff;border-radius:999px;padding:3px 6px}
 .qty button{background:none;border:0;color:#fff;font-size:20px;width:28px;height:28px;font-weight:800}
+.skel{height:300px;border-radius:20px;background:linear-gradient(90deg,#f0eedd,#f8f6ea,#f0eedd);background-size:200% 100%;animation:sk 1.4s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.empty{grid-column:1/-1;text-align:center;color:var(--mut)}
+.note{max-width:760px;margin:22px auto 0;text-align:center;color:var(--mut);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 16px;counter-increment:s;position:relative}
+.steps li:before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--g);color:#fff;font-weight:800;margin-bottom:10px}
+.steps b{display:block;margin-bottom:2px}.steps span{font-size:14px;color:var(--mut)}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.why div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+.why i{font-style:normal;font-size:30px;display:block;margin-bottom:6px}.why b{display:block}.why span{font-size:14px;color:var(--mut)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}
+.panel h3{margin:0 0 10px;font-size:20px}
+.dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:15px}
+.dl dt{font-weight:800}.dl dd{margin:0;color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips span{background:#eef6e6;color:var(--gd);font-weight:800;font-size:14px;border-radius:999px;padding:6px 14px}
+.about p{margin:0 0 10px;max-width:70ch}
+.rev{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.rev figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+.rev .st{color:#e0a800;letter-spacing:2px}.rev blockquote{margin:6px 0 10px}.rev figcaption{font-size:14px;color:var(--mut);font-weight:700}
+.faq{max-width:780px;margin:auto}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}
+.faq summary{font-weight:800;cursor:pointer}.faq p{margin:8px 0 0;color:var(--mut)}
 .sv{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .sv div{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}.sv h3{margin:0 0 6px}.sv p{margin:0 0 8px;color:var(--mut);font-size:14px}
 .cta{background:var(--gd);color:#fff;border-radius:26px;text-align:center;padding:46px 20px}
@@ -62,8 +102,13 @@ footer{text-align:center;padding:26px 20px 90px;color:var(--mut);font-size:14px}
 .dh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
 .dh h3{margin:0;font-size:22px}.x{background:none;border:0;font-size:28px}
 .db{flex:1;overflow:auto;padding:16px 20px}
-.line{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.line small{color:var(--mut);display:block}
+.lq{display:flex;align-items:center;gap:6px;margin-top:4px}
+.lq button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:#fff;font-weight:800;font-size:16px;line-height:1}
 .sum{margin:12px 0;font-size:15px}.sum div{display:flex;justify-content:space-between}.sum .t{font-weight:800;font-size:18px;color:var(--g);border-top:1px solid var(--line);padding-top:8px;margin-top:6px}
+.sum .hint{display:block;color:var(--gd);background:#fff6d8;border-radius:10px;padding:7px 10px;margin-top:8px;font-size:13.5px;font-weight:700}
+.sum .warn{display:block;color:var(--red);font-size:13.5px;font-weight:700;margin-top:6px}
 label{display:block;font-weight:700;font-size:14px;margin:12px 0 4px}
 input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radius:10px;font:inherit}
 .pay{display:flex;gap:10px;margin-top:6px}
@@ -74,65 +119,117 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
 .df{padding:14px 20px;border-top:1px solid var(--line)}
 .go{width:100%;background:#25D366;color:#fff;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:16px}
 :focus-visible{outline:3px solid var(--y);outline-offset:2px}
-@media(max-width:860px){.links{display:none}.hero .wrap{grid-template-columns:1fr}.strip{grid-template-columns:1fr 1fr;gap:8px}.strip div{border:0}.grid{grid-template-columns:repeat(2,1fr);gap:12px}.bar{display:block}}
+@media(prefers-reduced-motion:reduce){.skel{animation:none}.drawer{transition:none}html{scroll-behavior:auto}}
+@media(max-width:860px){
+ .nav{flex-wrap:wrap;padding-bottom:6px}.links{order:3;width:100%;overflow-x:auto;gap:18px;padding-bottom:6px;white-space:nowrap}
+ .hero .wrap{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr);gap:12px}.bar{display:block}
+ .steps{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}html{scroll-padding-top:120px}
+}
+@media(max-width:480px){.info{padding:12px}.pic{font-size:48px}.steps{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="banner" hidden></div>
 <header><div class="nav">
  <a class="logo serif" href="#top">Fresh<span>Cut</span></a>
- <nav class="links"><a href="#top">Home</a><a href="#shop">Shop</a><a href="#services">Services</a><a href="#contact">Contact</a></nav>
- <button class="cartbtn" data-a="open">Cart (<span class="cnt">0</span>)</button>
+ <nav class="links" aria-label="Main"><a href="#top">Home</a><a href="#shop">Shop</a><a href="#how">How It Works</a><a href="#about">About Us</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
+ <button class="cartbtn" data-a="open">🛒 Cart (<span class="cnt">0</span>)</button>
 </div></header>
 <main id="top">
 <div class="hero"><div class="wrap">
  <div>
   <span class="pill">Cut fresh. Packed clean.</span>
   <h1 class="serif">Fresh Cut, <em>Ready to Cook</em></h1>
-  <p class="lead">Vegetables and fruits washed, cut and packed at home, then delivered to your door. Pay cash on delivery.</p>
-  <div class="btns"><a class="btn b1" href="#shop">Shop now</a><a class="btn b2" href="tel:+918123806957">Call 8123806957</a></div>
+  <p class="lead">Vegetables and fruits washed, cut and packed, then delivered to your door in Bengaluru. Skip the chopping, keep the cooking.</p>
+  <ul class="facts"><li id="from">Fresh-cut packs</li><li>Free delivery above ₹<span class="fr">150</span></li><li>Order in a minute on WhatsApp</li></ul>
+  <div class="btns"><a class="btn b1" href="#shop">Shop now</a><a class="btn b4" href="https://wa.me/918123806957" target="_blank" rel="noopener">Order on WhatsApp</a></div>
  </div>
- <div id="collage" class="collage"></div>
+ <div id="collage" class="collage"><div class="tile t0">🥕</div><div class="tile t1">🥦</div><div class="tile t2">🍅</div><div class="tile t3">🧅</div></div>
 </div>
-<div class="wrap"><div class="strip">
- <div><b>Fresh daily</b><small>Cut for your order</small></div>
- <div><b>Hygienic</b><small>Careful food handling</small></div>
- <div><b>Cash on delivery</b><small>Pay when you receive</small></div>
- <div><b>Home delivery</b><small>Free above ₹150</small></div>
-</div></div></div>
+<div class="offer"><b>🎉 FREE DELIVERY ON ORDERS ABOVE ₹<span class="fr">150</span></b><small>Order today and save your cooking prep time.</small></div>
+</div>
+
 <section id="shop"><div class="wrap">
- <div class="head"><h2 class="serif">Shop</h2><p>Choose your items and add them to the cart.</p></div>
- <div class="tabs" id="tabs"></div><div class="grid" id="grid"><p>Loading...</p></div>
+ <div class="head"><h2 class="serif">Shop</h2><p>Pick your items and how you like them cut, then add to cart.</p></div>
+ <div class="tabs" id="tabs"></div>
+ <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+ <noscript><p class="empty">Please turn on JavaScript to see our items, or WhatsApp us on 8123806957.</p></noscript>
+ <p class="note">Every pack is washed, cut fresh for your order and packed hygienically. Please refrigerate after delivery and use within the time shown on each item.</p>
 </div></section>
+
+<section id="how" style="padding-top:0"><div class="wrap">
+ <div class="head"><h2 class="serif">How it works</h2><p>From your phone to your kitchen in five steps.</p></div>
+ <ol class="steps">
+  <li><b>Choose</b><span>Pick your vegetables and cutting style.</span></li>
+  <li><b>Add to cart</b><span>Set the quantity you need.</span></li>
+  <li><b>Enter your address</b><span>Name, phone number and delivery address.</span></li>
+  <li><b>We prepare it fresh</b><span>Washed, cut and packed for your order.</span></li>
+  <li><b>Delivered to you</b><span>Pay cash on delivery.</span></li>
+ </ol>
+</div></section>
+
+<section id="why" style="padding-top:0"><div class="wrap">
+ <div class="head"><h2 class="serif">Why choose FreshCut?</h2></div>
+ <div class="why">
+  <div><i>🥕</i><b>Freshly cut</b><span>Cut fresh for your order.</span></div>
+  <div><i>🧼</i><b>Clean and hygienic</b><span>Washed and carefully packed.</span></div>
+  <div><i>⏱️</i><b>Save preparation time</b><span>No washing, peeling or chopping.</span></div>
+  <div><i>🏠</i><b>Delivered to your door</b><span>Convenient Bengaluru delivery.</span></div>
+  <div><i>💰</i><b>Affordable packs</b><span>Order only what you need.</span></div>
+ </div>
+</div></section>
+
+<section id="delivery" style="padding-top:0"><div class="wrap">
+ <div class="head"><h2 class="serif">Delivery</h2><p>Where, when and how much.</p></div>
+ <div class="two">
+  <div class="panel"><h3>Delivery areas</h3><div class="chips" id="areas"></div></div>
+  <div class="panel"><h3>Delivery details</h3><dl class="dl" id="dinfo"></dl></div>
+ </div>
+</div></section>
+
+<section id="about" style="padding-top:0"><div class="wrap about">
+ <div class="head"><h2 class="serif">About FreshCut</h2></div>
+ <div class="panel" id="abouttxt"></div>
+</div></section>
+
+<section id="reviews" hidden style="padding-top:0"><div class="wrap">
+ <div class="head"><h2 class="serif">What our customers say</h2></div><div class="rev" id="rev"></div>
+</div></section>
+
+<section id="faq" style="padding-top:0"><div class="wrap">
+ <div class="head"><h2 class="serif">Frequently asked questions</h2></div>
+ <div class="faq" id="faqbox"></div>
+</div></section>
+
 <section id="services" hidden style="padding-top:0"><div class="wrap">
  <div class="head"><h2 class="serif">Our Services</h2></div><div class="sv" id="sv"></div>
 </div></section>
+
 <section id="contact" style="padding-top:0"><div class="wrap"><div class="cta">
  <h2 class="serif">Questions? Talk to us</h2><p>Bengaluru delivery. Call or WhatsApp to check today's availability.</p>
  <a class="phone" href="tel:+918123806957">8123806957</a>
  <div class="btns" style="justify-content:center"><a class="btn b3" href="https://wa.me/918123806957" target="_blank" rel="noopener">WhatsApp us</a><a class="btn b2" href="tel:+918123806957">Call us</a></div>
 </div></div></section>
 </main>
-<footer>Fresh Cut Vegetables & Fruits · © 2026</footer>
+<footer>FreshCut Vegetables & Fruits · Bengaluru · © 2026</footer>
 <a class="wa" href="https://wa.me/918123806957" target="_blank" rel="noopener">WhatsApp</a>
-<button class="bar" data-a="open">Cart (<span class="cnt">0</span>)</button>
+<button class="bar" data-a="open">🛒 Cart (<span class="cnt">0</span>)</button>
+
 <div id="cart"><div class="shade" data-a="close"></div>
 <aside class="drawer" aria-label="Cart">
  <div class="dh"><h3 class="serif">Your order</h3><button class="x" data-a="close" aria-label="Close">×</button></div>
  <div class="db"><div id="lines"></div><div class="sum" id="sum"></div>
   <label for="nm">Your name</label><input id="nm" autocomplete="name">
-  <label for="ph">Phone number</label><input id="ph" type="tel" autocomplete="tel">
+  <label for="ph">Phone number</label><input id="ph" type="tel" inputmode="numeric" autocomplete="tel">
   <label for="ad">Delivery address</label><textarea id="ad" rows="3" autocomplete="street-address"></textarea>
   <label>Payment</label>
   <div class="pay">
    <label class="sel" id="l1"><input type="radio" name="pm" value="Cash on delivery" checked>Cash on delivery</label>
-   <label id="l2"><input type="radio" name="pm" value="Online (QR)">Pay online (QR)</label>
+   <label id="l2" hidden><input type="radio" name="pm" value="Online (QR)">Pay online (QR)</label>
   </div>
-  <div class="qr" id="qr"><img src="qr.png" alt="Payment QR code" onerror="this.style.display='none';document.getElementById('qrn').style.display='block'">
-   <div id="qrn" style="display:none">QR code will appear here soon. Please choose cash on delivery.</div>
-   <p>Scan and pay the total, then send the payment screenshot on WhatsApp.</p></div>
+  <div class="qr" id="qr"><img id="qrimg" alt="Payment QR code"><p>Scan and pay the total, then send the payment screenshot on WhatsApp.</p></div>
  </div>
- <div class="df"><button class="go" data-a="send">Send order on WhatsApp</button></div>
+ <div class="df"><button class="go" data-a="send">🟢 Place Order on WhatsApp</button></div>
 </aside></div>
 
 <script type="module">
@@ -140,38 +237,86 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-ap
 import{getFirestore,collection,getDocs,doc,getDoc,addDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CFG={apiKey:"AIzaSyATqn1InnyTkyHqIfbLw4LZQ4fGLzwf52A",authDomain:"freshcut-e85c7.firebaseapp.com",projectId:"freshcut-e85c7",storageBucket:"freshcut-e85c7.firebasestorage.app",messagingSenderId:"591946013615",appId:"1:591946013615:web:7812e8cd886d33e6992d5a"};
 const db=getFirestore(initializeApp(CFG));
-const PHONE="918123806957",DEL=20,FREE=150;
+const PHONE="918123806957";
 const $=i=>document.getElementById(i);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let P=[],S={},cart={},cat="";
+const num=(v,d)=>{const n=Number(v);return v===undefined||v===null||v===""||isNaN(n)?d:n};
+let P=[],S={},cart={},cat="All",sel={},qrOK=false;
+const DEL=()=>num(S.delCharge,20),FREE=()=>num(S.freeAbove,150),MIN=()=>num(S.minOrder,0);
 const today=()=>new Date().toLocaleDateString("en-CA");
 const dpct=()=>+S.pct>0&&(!S.start||today()>=S.start)&&(!S.end||today()<=S.end)?+S.pct:0;
 const pr=p=>Math.round(p.price*(100-dpct())/100);
-const cats=()=>[...new Set(P.map(p=>p.cat||"Others"))];
-function tabs(){$("tabs").innerHTML=cats().map(k=>`<button class="tab${k==cat?" on":""}" data-a="tab" data-c="${esc(k)}">${esc(k)}</button>`).join("")}
+const cats=()=>{const c=[...new Set(P.map(p=>p.cat||"Others"))];return c.length>1?["All",...c]:c};
+const cuts=p=>Array.isArray(p.cuts)?p.cuts.filter(Boolean):(p.cut?[p.cut]:[]);
+const curCut=p=>{const c=cuts(p);return c.length?(c.includes(sel[p.id])?sel[p.id]:c[0]):""};
+const key=(p,c)=>p.id+"|"+c;
+const EMO=[["carrot","🥕"],["bean","🫘"],["onion","🧅"],["potato","🥔"],["tomato","🍅"],["cucumber","🥒"],["capsicum","🫑"],["pepper","🫑"],["brinjal","🍆"],["cabbage","🥬"],["cauliflower","🥦"],["broccoli","🥦"],["corn","🌽"],["garlic","🧄"],["ginger","🫚"],["beet","🟣"],["papaya","🍈"],["pineapple","🍍"],["watermelon","🍉"],["melon","🍈"],["mango","🥭"],["apple","🍎"],["banana","🍌"],["grape","🍇"],["orange","🍊"],["salad","🥗"],["fruit","🍓"],["sambar","🍲"],["combo","🍲"],["mixed","🥗"]];
+const emoji=p=>{const s=((p.name||"")+" "+(p.cat||"")).toLowerCase();for(const[k,e]of EMO)if(s.includes(k))return e;return"🥬"};
+
+function tabs(){$("tabs").innerHTML=cats().length>1?cats().map(k=>`<button class="tab${k==cat?" on":""}" data-a="tab" data-c="${esc(k)}">${esc(k)}</button>`).join(""):""}
 function grid(){
  const d=dpct();
- $("grid").innerHTML=P.filter(p=>(p.cat||"Others")==cat).map(p=>{
-  const q=cart[p.id]?cart[p.id].q:0;
-  const ctl=q?`<div class="qty"><button data-a="q" data-id="${p.id}" data-d="-1" aria-label="Less">−</button><span>${q}</span><button data-a="q" data-id="${p.id}" data-d="1" aria-label="More">+</button></div>`:`<button class="add" data-a="q" data-id="${p.id}" data-d="1">Add</button>`;
-  return `<div class="card"><div class="pic">${p.img?`<img src="${p.img}" alt="${esc(p.name)}">`:esc(p.name[0])}</div><div class="info"><h3>${esc(p.name)}</h3><p>${esc(p.unit)}</p><div class="row"><span class="price">₹${pr(p)}${d?` <s>₹${p.price}</s>`:""}</span>${ctl}</div></div></div>`}).join("")||"<p>No items yet. Please check back soon.</p>";
+ if(!P.length){$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>8123806957</b></a></p>';return}
+ $("grid").innerHTML=P.filter(p=>cat=="All"||(p.cat||"Others")==cat).map(p=>{
+  const out=p.active===false,cs=cuts(p),c=curCut(p),q=cart[key(p,c)]?.q||0;
+  const ctl=out?`<button class="add" disabled>Unavailable</button>`:q?`<div class="qty"><button data-a="q" data-id="${esc(p.id)}" data-d="-1" aria-label="Less">−</button><span>${q}</span><button data-a="q" data-id="${esc(p.id)}" data-d="1" aria-label="More">+</button></div>`:`<button class="add" data-a="q" data-id="${esc(p.id)}" data-d="1">Add to cart</button>`;
+  const cutUI=cs.length>1?`<label class="cutsel">✂ Cut<select data-a="cut" data-id="${esc(p.id)}" aria-label="Cutting type for ${esc(p.name)}">${cs.map(x=>`<option${x==c?" selected":""}>${esc(x)}</option>`).join("")}</select></label>`:cs.length==1?`<span class="cutb">✂ ${esc(cs[0])}</span>`:"";
+  return `<div class="card${out?" out":""}"><div class="pic">${p.img?`<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`:emoji(p)}</div><div class="info"><h3>${esc(p.name)}</h3><div class="pk"><span>${esc(p.unit)}</span><span class="av ${out?"no":"yes"}">${out?"Out of stock":"In stock"}</span></div>${cutUI}${p.desc?`<p class="desc">${esc(p.desc)}</p>`:""}${p.shelf?`<p class="shelf">Best within ${esc(p.shelf)} · keep refrigerated</p>`:""}<div class="spacer"></div><div class="row"><span class="price">₹${pr(p)}${d?` <s>₹${p.price}</s>`:""}</span>${ctl}</div></div></div>`}).join("")||'<p class="empty">No items in this category yet.</p>';
 }
-function tot(){let s=0,c=0;for(const k in cart){s+=cart[k].p*cart[k].q;c+=cart[k].q}const d=s?(s>=FREE?0:DEL):0;return{s,c,d,t:s+d}}
+function tot(){let s=0,c=0;for(const k in cart){s+=cart[k].p*cart[k].q;c+=cart[k].q}const d=s?(s>=FREE()?0:DEL()):0;return{s,c,d,t:s+d}}
 function upd(){
  const t=tot();document.querySelectorAll(".cnt").forEach(e=>e.textContent=t.c);
- $("lines").innerHTML=Object.values(cart).map(c=>`<div class="line"><span>${esc(c.n)} <small>(${esc(c.u)})</small> × ${c.q}</span><b>₹${c.p*c.q}</b></div>`).join("")||"<p>Your cart is empty.</p>";
- $("sum").innerHTML=t.s?`<div><span>Items</span><span>₹${t.s}</span></div><div><span>Delivery${t.d?"":" (free)"}</span><span>₹${t.d}</span></div><div class="t"><span>Total</span><span>₹${t.t}</span></div>`:"";
+ $("lines").innerHTML=Object.entries(cart).map(([k,c])=>`<div class="line"><span><b>${esc(c.n)}</b><small>${esc(c.u)}${c.c?" · "+esc(c.c):""}</small><span class="lq"><button data-a="cq" data-k="${esc(k)}" data-d="-1" aria-label="Less">−</button>${c.q}<button data-a="cq" data-k="${esc(k)}" data-d="1" aria-label="More">+</button></span></span><b>₹${c.p*c.q}</b></div>`).join("")||"<p>Your cart is empty.</p>";
+ let h="";
+ if(t.s){
+  h=`<div><span>Order total</span><span>₹${t.s}</span></div><div><span>Delivery</span><span>${t.d?"₹"+t.d:"FREE"}</span></div><div class="t"><span>Grand total</span><span>₹${t.t}</span></div>`;
+  if(t.d&&FREE())h+=`<span class="hint">Add ₹${FREE()-t.s} more for free delivery</span>`;
+  if(MIN()&&t.s<MIN())h+=`<span class="warn">Minimum order is ₹${MIN()}. Please add ₹${MIN()-t.s} more.</span>`;
+ }
+ $("sum").innerHTML=h;
 }
 function send(){
  const t=tot();if(!t.c)return alert("Please add items to your cart first.");
+ if(MIN()&&t.s<MIN())return alert("Minimum order is ₹"+MIN()+".");
  const n=$("nm").value.trim(),ph=$("ph").value.trim(),ad=$("ad").value.trim();
  if(!n||!ph||!ad)return alert("Please enter your name, phone number and address.");
- const pay=document.querySelector("input[name=pm]:checked").value,items=Object.values(cart);
- addDoc(collection(db,"orders"),{items,name:n,phone:ph,address:ad,pay,total:t.t,status:"New",createdAt:serverTimestamp()}).catch(()=>{});
- let m="New order\n\n";items.forEach(c=>m+=`- ${c.n} (${c.u}) x ${c.q} = Rs.${c.p*c.q}\n`);
- m+=`\nItems: Rs.${t.s}\nDelivery: Rs.${t.d}\nTotal: Rs.${t.t}\n\nPayment: ${pay}\nName: ${n}\nPhone: ${ph}\nAddress: ${ad}`;
+ if(ph.replace(/\D/g,"").slice(-10).length<10)return alert("Please enter a valid 10-digit phone number.");
+ const payment=document.querySelector("input[name=pm]:checked").value,items=Object.values(cart);
+ addDoc(collection(db,"orders"),{items:items.map(c=>({n:c.n,u:c.u,c:c.c||"",p:c.p,q:c.q})),name:n,phone:ph,address:ad,payment,total:t.t,status:"New",createdAt:serverTimestamp()}).catch(()=>{});
+ let m="Hi FreshCut, I would like to order:\n\n";
+ items.forEach(c=>m+=`- ${c.n} (${c.u}${c.c?", "+c.c:""}) x ${c.q} = ₹${c.p*c.q}\n`);
+ m+=`\nOrder total: ₹${t.s}\nDelivery: ${t.d?"₹"+t.d:"FREE"}\nGrand total: ₹${t.t}\n\nPayment: ${payment}\nName: ${n}\nPhone: ${ph}\nAddress: ${ad}`;
  window.open("https://wa.me/"+PHONE+"?text="+encodeURIComponent(m),"_blank");
  cart={};upd();grid();$("cart").className="";
+}
+function info(){
+ document.querySelectorAll(".fr").forEach(e=>e.textContent=FREE());
+ const pr0=P.filter(p=>p.active!==false&&p.price>0).map(pr);
+ $("from").textContent=pr0.length?"Packs from ₹"+Math.min(...pr0):"Fresh-cut packs";
+ const areas=(S.areas||"").split(",").map(s=>s.trim()).filter(Boolean);
+ $("areas").innerHTML=areas.length?areas.map(a=>`<span>${esc(a)}</span>`).join(""):"<p style='margin:0;color:var(--mut)'>We deliver across Bengaluru. Message us your area on WhatsApp to confirm.</p>";
+ const rows=[["Delivery charge","₹"+DEL()+(FREE()?" (free above ₹"+FREE()+")":"")]];
+ if(MIN())rows.push(["Minimum order","₹"+MIN()]);
+ rows.push(["Timings",S.timings||"Message us on WhatsApp for today's slot"]);
+ if(S.cutoff)rows.push(["Same-day cutoff",S.cutoff]);
+ rows.push(["Payment","Cash on delivery"+(qrOK?" or online QR":"")]);
+ $("dinfo").innerHTML=rows.map(r=>`<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join("");
+ const about=S.about||"FreshCut was created to make everyday cooking easier. We wash and cut fresh vegetables and fruits, pack them hygienically, and deliver them to your doorstep in Bengaluru.";
+ $("abouttxt").innerHTML=about.split(/\n+/).map(x=>`<p>${esc(x)}</p>`).join("");
+ const rv=Array.isArray(S.reviews)?S.reviews:[];
+ $("reviews").hidden=!rv.length;
+ $("rev").innerHTML=rv.map(r=>`<figure><div class="st" aria-label="${num(r.stars,5)} stars">${"★".repeat(Math.min(5,Math.max(1,num(r.stars,5))))}</div><blockquote>${esc(r.text)}</blockquote><figcaption>${esc(r.name)}${r.area?", "+esc(r.area):""}</figcaption></figure>`).join("");
+ const faq=[
+  ["Are the vegetables washed?","Yes. Every item is washed, cut fresh for your order and packed hygienically."],
+  ["How long do they stay fresh?","Keep them refrigerated after delivery. Each item shows how long it is best used within."],
+  ["Where do you deliver?",areas.length?"We currently deliver to: "+areas.join(", ")+".":"We deliver across Bengaluru. Message us your area on WhatsApp to confirm."],
+  ["What is the minimum order?",MIN()?"The minimum order is ₹"+MIN()+".":"There is no minimum order. Delivery is ₹"+DEL()+", and free above ₹"+FREE()+"."],
+  ["Do you accept cash on delivery?","Yes, you can pay in cash when your order arrives."+(qrOK?" Online QR payment is also available.":"")],
+  ["Can I order through WhatsApp?","Yes. Add items to your cart and tap Place Order on WhatsApp, or simply message us on 8123806957."],
+  ["Can I choose how vegetables are cut?","Yes. Items list their available cutting types (like small cubes, long strips or round slices). Message us for anything special."],
+  ["What are your delivery timings?",S.timings||"Message us on WhatsApp for today's delivery slot."]
+ ];
+ $("faqbox").innerHTML=faq.map(f=>`<details><summary>${esc(f[0])}</summary><p>${esc(f[1])}</p></details>`).join("");
 }
 document.addEventListener("click",e=>{
  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
@@ -179,20 +324,39 @@ document.addEventListener("click",e=>{
  else if(a=="close")$("cart").className="";
  else if(a=="tab"){cat=b.dataset.c;tabs();grid()}
  else if(a=="send")send();
- else if(a=="q"){const p=P.find(x=>x.id==b.dataset.id),q=(cart[p.id]?cart[p.id].q:0)+ +b.dataset.d;
-  if(q<=0)delete cart[p.id];else cart[p.id]={n:p.name,u:p.unit,p:pr(p),q};grid();upd()}
+ else if(a=="q"){const p=P.find(x=>x.id==b.dataset.id);if(!p||p.active===false)return;
+  const c=curCut(p),k=key(p,c),q=(cart[k]?.q||0)+ +b.dataset.d;
+  if(q<=0)delete cart[k];else cart[k]={n:p.name,u:p.unit,c,p:pr(p),q};grid();upd()}
+ else if(a=="cq"){const it=cart[b.dataset.k];if(!it)return;it.q+=+b.dataset.d;if(it.q<=0)delete cart[b.dataset.k];grid();upd()}
 });
-document.addEventListener("change",e=>{if(e.target.name=="pm"){const o=e.target.value!="Cash on delivery";$("qr").style.display=o?"block":"none";$("l1").className=o?"":"sel";$("l2").className=o?"sel":""}});
-try{
- const[a,b,c]=await Promise.all([getDocs(collection(db,"products")),getDoc(doc(db,"settings","site")),getDocs(collection(db,"services"))]);
- P=a.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false).sort((x,y)=>(x.cat||"").localeCompare(y.cat||"")||x.name.localeCompare(y.name));
- S=b.exists()?b.data():{};
- cat=cats()[0]||"";tabs();grid();
- const bn=[S.show?S.wish:"",dpct()?`${S.fest||"Special offer"}: ${dpct()}% off${S.end?" until "+S.end:""}`:""].filter(Boolean).join("  |  ");
- if(bn){$("banner").textContent=bn;$("banner").hidden=false}
- $("collage").innerHTML=P.filter(p=>p.img).slice(0,4).map(p=>`<img src="${p.img}" alt="${esc(p.name)}">`).join("");
- if(!c.empty){$("services").hidden=false;$("sv").innerHTML=c.docs.map(d=>d.data()).map(s=>`<div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p><b>${esc(s.price)}</b></div>`).join("")}
-}catch(err){$("grid").innerHTML="<p>Could not load products. Please refresh or call 8123806957.</p>"}
+document.addEventListener("change",e=>{
+ const t=e.target;
+ if(t.dataset&&t.dataset.a=="cut"){sel[t.dataset.id]=t.value;grid()}
+ if(t.name=="pm"){const o=t.value!="Cash on delivery";$("qr").style.display=o?"block":"none";$("l1").className=o?"":"sel";$("l2").className=o?"sel":""}
+});
+// Online payment is only offered when a real qr.png exists.
+const qi=new Image();qi.onload=()=>{qrOK=true;$("qrimg").src="qr.png";$("l2").hidden=false;info()};qi.src="qr.png";
+
+async function load(){
+ $("grid").innerHTML='<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+ try{
+  const timeout=new Promise((_,r)=>setTimeout(()=>r(new Error("timeout")),9000));
+  const[a,b,c]=await Promise.race([Promise.all([getDocs(collection(db,"products")),getDoc(doc(db,"settings","site")),getDocs(collection(db,"services"))]),timeout]);
+  P=a.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.hide).sort((x,y)=>(x.cat||"").localeCompare(y.cat||"")||x.name.localeCompare(y.name));
+  S=b.exists()?b.data():{};
+  cat=cats()[0]||"All";tabs();grid();info();
+  const bn=[S.show?S.wish:"",dpct()?`${S.fest||"Special offer"}: ${dpct()}% off${S.end?" until "+S.end:""}`:""].filter(Boolean).join("  |  ");
+  if(bn){$("banner").textContent=bn;$("banner").hidden=false}
+  const imgs=P.filter(p=>p.img).slice(0,4);
+  if(imgs.length>=2)$("collage").innerHTML=imgs.map(p=>`<img src="${p.img}" alt="${esc(p.name)}">`).join("");
+  if(!c.empty){$("services").hidden=false;$("sv").innerHTML=c.docs.map(d=>d.data()).map(s=>`<div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p><b>${esc(s.price)}</b></div>`).join("")}
+ }catch(err){
+  console.error(err);info();
+  $("grid").innerHTML='<p class="empty">We could not load our items right now. <button class="tab" id="retry">Try again</button><br><br>Or order directly on WhatsApp: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>8123806957</b></a></p>';
+  $("retry").onclick=load;
+ }
+}
+info();load();
 </script>
 </body>
 </html>
