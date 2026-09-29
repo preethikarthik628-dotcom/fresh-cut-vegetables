@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Fresh Cut Admin</title>
+<style>
+:root{--g:#15703a;--gd:#0e4a26;--y:#f7c948;--bg:#f4f6ef;--line:#e2e6d8;--mut:#61705f}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#1b2a1f}
+button{font-family:inherit;cursor:pointer}
+.top{background:var(--gd);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.top b{font-size:18px}.top button{background:transparent;color:#fff;border:1px solid #ffffff88;border-radius:8px;padding:6px 12px}
+.tabs{display:flex;gap:6px;padding:10px 12px;overflow:auto;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-weight:700;white-space:nowrap}
+.tab.on{background:var(--g);color:#fff;border-color:var(--g)}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{margin:0 0 12px;font-size:20px}h3{margin:0 0 6px;font-size:16px}
+label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-radius:8px;font:inherit}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{background:var(--g);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700;margin-top:12px}
+.btn.s{background:#fff;color:var(--g);border:1px solid var(--g);margin:0;padding:6px 10px;font-size:13px}
+.btn.d{background:#fff;color:#b3261e;border:1px solid #b3261e;margin:0;padding:6px 10px;font-size:13px}
+.btn.w{background:#25D366}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.item img,.item .ph{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#eef3e6;display:grid;place-items:center;flex:none}
+.item .m{flex:1;min-width:0}.item small{color:var(--mut)}
+.item input.p{width:80px}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#eef3e6}
+.st-New{background:#fff1c2}.st-Preparing{background:#dbeafe}.st-Delivered{background:#d5f0dc}.st-Cancelled{background:#f8d7d4}
+.ord{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.ord ul{margin:6px 0;padding-left:18px}
+#login{max-width:360px;margin:60px auto;padding:0 16px}
+.msg{color:#b3261e;font-size:14px;margin-top:8px}.ok{color:var(--g)}
+.prev{width:110px;height:110px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
+</style>
+</head>
+<body>
+<div id="login"><div class="box">
+ <h2>Fresh Cut Admin</h2>
+ <label for="em">Email</label><input id="em" type="email" autocomplete="username">
+ <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+ <button class="btn" id="lg">Log in</button><div class="msg" id="lm"></div>
+</div></div>
+
+<div id="app" style="display:none">
+ <div class="top"><b>🥕 Fresh Cut Admin</b><span><a href="index.html" style="color:#fff;margin-right:12px">View store</a><button id="lo">Log out</button></span></div>
+ <div class="tabs" id="tabs"></div>
+ <div class="wrap" id="view"></div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,doc,addDoc,setDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const app=initializeApp({apiKey:"AIzaSyATqn1InnyTkyHqIfbLw4LZQ4fGLzwf52A",authDomain:"freshcut-e85c7.firebaseapp.com",projectId:"freshcut-e85c7",storageBucket:"freshcut-e85c7.firebasestorage.app",messagingSenderId:"591946013615",appId:"1:591946013615:web:7812e8cd886d33e6992d5a"});
+const db=getFirestore(app),auth=getAuth(app);
+const $=i=>document.getElementById(i);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TABS=["Orders","Products","Services","Festival & Wishes"];
+let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false;
+
+$("lg").onclick=async()=>{$("lm").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lm").textContent="Wrong email or password."}};
+$("lo").onclick=()=>signOut(auth);
+onAuthStateChanged(auth,u=>{
+ $("login").style.display=u?"none":"block";$("app").style.display=u?"block":"none";
+ if(u&&!started){started=true;listen()}
+});
+function listen(){
+ const err=e=>{console.error(e);alert("Permission problem: please check the Firestore rules.")};
+ onSnapshot(collection(db,"products"),s=>{P=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.cat).localeCompare(b.cat)||String(a.name).localeCompare(b.name));draw()},err);
+ onSnapshot(collection(db,"services"),s=>{S=s.docs.map(d=>({id:d.id,...d.data()}));draw()},err);
+ onSnapshot(collection(db,"orders"),s=>{O=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));draw()},err);
+ onSnapshot(doc(db,"settings","site"),s=>{ST=s.exists()?s.data():{};if(tab.startsWith("Fest")&&!document.activeElement.closest?.("#view"))draw()},err);
+}
+function draw(){
+ $("tabs").innerHTML=TABS.map(t=>'<button class="tab'+(t==tab?" on":"")+'" data-t="'+t+'">'+t+(t=="Orders"?" ("+O.filter(o=>o.status=="New").length+" new)":"")+"</button>").join("");
+ if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#view")&&(tab=="Products"||tab.startsWith("Fest")||tab=="Services")&&document.activeElement.tagName!=="BODY")return;
+ $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Services"?vServices():vFest();
+ if(tab=="Products")prev();
+}
+$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";img="";$("view").innerHTML="";draw()}};
+const wa=(ph,m)=>{ph=String(ph||"").replace(/\D/g,"");if(ph.length==10)ph="91"+ph;return "https://wa.me/"+ph+"?text="+encodeURIComponent(m)};
+
+function vOrders(){
+ if(!O.length)return '<div class="box">No orders yet. New orders will appear here automatically.</div>';
+ return O.map(o=>{
+  const t=o.createdAt?new Date(o.createdAt.seconds*1000).toLocaleString("en-IN"):"";
+  return '<div class="ord"><div class="row"><b>'+esc(o.name)+'</b><span class="tag st-'+esc(o.status)+'">'+esc(o.status)+"</span><small>"+t+'</small></div>'
+  +'<div><a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+"</a> · "+esc(o.address)+"</div><ul>"+(o.items||[]).map(i=>"<li>"+esc(i.n)+" ("+esc(i.u)+") × "+i.q+" = ₹"+i.p*i.q+"</li>").join("")+"</ul>"
+  +"<div><b>Total ₹"+o.total+"</b> · "+esc(o.payment)+'</div><div class="row" style="margin-top:8px">'
+  +'<select data-os="'+o.id+'" style="width:auto">'+["New","Preparing","Delivered","Cancelled"].map(s=>"<option"+(s==o.status?" selected":"")+">"+s+"</option>").join("")+"</select>"
+  +'<a class="btn s" target="_blank" href="'+wa(o.phone,"Hello "+o.name+", your Fresh Cut order (Rs."+o.total+") is confirmed. Thank you!")+'">WhatsApp customer</a>'
+  +'<button class="btn d" data-od="'+o.id+'">Delete</button></div></div>';
+ }).join("");
+}
+function vProducts(){
+ const cats=[...new Set(["Vegetables","Fruits","Mixed & Salad","Ready to Cook",...P.map(p=>p.cat).filter(Boolean)])];
+ const e=P.find(p=>p.id==editId)||{};
+ return '<div class="box"><h2>'+(editId?"Edit product":"Add new product")+"</h2>"
+ +'<label>Name</label><input id="pn" value="'+esc(e.name)+'">'
+ +'<div class="g2"><div><label>Category</label><input id="pc" list="cl" value="'+esc(e.cat||"Vegetables")+'"><datalist id="cl">'+cats.map(c=>'<option value="'+esc(c)+'">').join("")+'</datalist></div>'
+ +'<div><label>Pack size (e.g. 500 g)</label><input id="pu" value="'+esc(e.unit)+'"></div></div>'
+ +'<div class="g2"><div><label>Price (₹)</label><input id="pp" type="number" min="0" value="'+esc(e.price)+'"></div>'
+ +'<div><label>Photo</label><input id="pf" type="file" accept="image/*"></div></div>'
+ +'<img class="prev" id="pv"><label><input type="checkbox" id="pa" style="width:auto" '+(e.active===false?"":"checked")+'> Show on store (untick if out of stock)</label>'
+ +'<button class="btn" id="ps">'+(editId?"Save changes":"Add product")+'</button> '+(editId?'<button class="btn s" id="pcx">Cancel</button>':"")+'<div class="msg ok" id="pm"></div></div>'
+ +'<div class="box"><h2>All products ('+P.length+")</h2>"+(P.map(p=>'<div class="item">'+(p.img?'<img src="'+p.img+'">':'<div class="ph">🥬</div>')
+ +'<div class="m"><b>'+esc(p.name)+"</b><br><small>"+esc(p.cat)+" · "+esc(p.unit)+(p.active===false?" · HIDDEN":"")+"</small></div>"
+ +'₹<input class="p" type="number" min="0" value="'+p.price+'" data-pr="'+p.id+'">'
+ +'<button class="btn s" data-pe="'+p.id+'">Edit</button><button class="btn d" data-pd="'+p.id+'">Delete</button></div>').join("")||"<p>No products yet. Add your first one above.</p>")+"</div>";
+}
+function prev(){const v=$("pv");const src=img||(P.find(p=>p.id==editId)||{}).img;if(v&&src){v.src=src;v.style.display="block"}}
+function vServices(){
+ return '<div class="box"><h2>Add a service</h2><label>Service name</label><input id="sn" placeholder="e.g. Party fruit tray">'
+ +'<label>Description</label><textarea id="sd" rows="2"></textarea><label>Price text</label><input id="sp" placeholder="e.g. From ₹300 or Ask for price">'
+ +'<button class="btn" id="ss">Add service</button></div><div class="box"><h2>Services ('+S.length+")</h2>"
+ +(S.map(s=>'<div class="item"><div class="m"><b>'+esc(s.name)+"</b><br><small>"+esc(s.desc)+" · "+esc(s.price)+'</small></div><button class="btn d" data-sd="'+s.id+'">Delete</button></div>').join("")||"<p>No services yet.</p>")+"</div>";
+}
+function vFest(){
+ const ph=[...new Map(O.filter(o=>o.phone).map(o=>[String(o.phone).replace(/\D/g,"").slice(-10),o])).values()];
+ return '<div class="box"><h2>Festival discount and wishes</h2>'
+ +'<label>Festival name</label><input id="fn" value="'+esc(ST.fest)+'" placeholder="e.g. Diwali">'
+ +'<div class="g2"><div><label>Discount % on all items (0 for none)</label><input id="fp" type="number" min="0" max="90" value="'+esc(ST.pct||0)+'"></div><div></div>'
+ +'<div><label>Starts on</label><input id="fs" type="date" value="'+esc(ST.start)+'"></div><div><label>Ends on</label><input id="fe" type="date" value="'+esc(ST.end)+'"></div></div>'
+ +'<label>Wish message</label><textarea id="fw" rows="3" placeholder="Happy Diwali from Fresh Cut! ...">'+esc(ST.wish)+"</textarea>"
+ +'<label><input type="checkbox" id="fo" style="width:auto" '+(ST.show?"checked":"")+'> Show banner on the store</label>'
+ +'<button class="btn" id="fv">Save</button><div class="msg ok" id="fm"></div></div>'
+ +'<div class="box"><h2>Send wishes to customers ('+ph.length+")</h2><p style='color:#61705f;font-size:14px'>Tap each name to open WhatsApp with your wish message ready. Save the message above first.</p>"
+ +(ph.map(o=>'<div class="item"><div class="m"><b>'+esc(o.name)+"</b><br><small>"+esc(o.phone)+'</small></div><a class="btn s btn w" style="color:#fff" target="_blank" href="'+wa(o.phone,ST.wish||"Greetings from Fresh Cut!")+'">Send wish</a></div>').join("")||"<p>Customers who order will appear here.</p>")+"</div>";
+}
+
+document.addEventListener("change",async e=>{
+ const t=e.target;
+ if(t.dataset.os)await updateDoc(doc(db,"orders",t.dataset.os),{status:t.value});
+ if(t.dataset.pr)await updateDoc(doc(db,"products",t.dataset.pr),{price:Number(t.value)||0});
+ if(t.id=="pf"&&t.files[0]){img=await shrink(t.files[0]);prev()}
+});
+document.addEventListener("click",async e=>{
+ const t=e.target,d=t.dataset||{};
+ if(d.od&&confirm("Delete this order?"))await deleteDoc(doc(db,"orders",d.od));
+ if(d.pe){editId=d.pe;img="";$("view").innerHTML="";draw();scrollTo(0,0)}
+ if(d.pd&&confirm("Delete this product?"))await deleteDoc(doc(db,"products",d.pd));
+ if(d.sd&&confirm("Delete this service?"))await deleteDoc(doc(db,"services",d.sd));
+ if(t.id=="pcx"){editId="";img="";$("view").innerHTML="";draw()}
+ if(t.id=="ps"){
+  const n=$("pn").value.trim();if(!n||$("pp").value===""){alert("Please enter a name and price.");return}
+  const old=P.find(p=>p.id==editId)||{};
+  const data={name:n,cat:$("pc").value.trim()||"Products",unit:$("pu").value.trim(),price:Number($("pp").value),active:$("pa").checked,img:img||old.img||""};
+  try{if(editId)await setDoc(doc(db,"products",editId),data);else await addDoc(collection(db,"products"),data);
+   editId="";img="";$("view").innerHTML="";draw();alert("Saved.")}catch(x){alert("Could not save. If the photo is very large, try a smaller one.")}
+ }
+ if(t.id=="ss"){const n=$("sn").value.trim();if(!n)return;await addDoc(collection(db,"services"),{name:n,desc:$("sd").value.trim(),price:$("sp").value.trim(),active:true});$("view").innerHTML="";draw()}
+ if(t.id=="fv"){await setDoc(doc(db,"settings","site"),{fest:$("fn").value.trim(),pct:Number($("fp").value)||0,start:$("fs").value,end:$("fe").value,wish:$("fw").value.trim(),show:$("fo").checked});$("fm").textContent="Saved. The store is updated."}
+});
+function shrink(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,600/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.72))};i.src=URL.createObjectURL(f)})}
+</script>
+</body>
+</html>
