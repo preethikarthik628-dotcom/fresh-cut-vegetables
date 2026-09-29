@@ -38,6 +38,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-ra
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}.chip{display:flex;align-items:center;gap:6px;margin:0;border:1px solid #c9d1bd;border-radius:999px;padding:7px 12px;font-weight:600;font-size:14px;background:#fff}.chip input{width:auto}
 .stk{display:flex;align-items:center;gap:5px;margin:0;font-size:13px;white-space:nowrap}.stk input{width:auto}
 .tag.no{background:#f8d7d4}.tag.hid{background:#e5e5e5}.hint{color:var(--mut);font-size:13px;margin:4px 0 0}
+.bprev{width:100%;max-width:420px;aspect-ratio:16/6;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 .prev{width:110px;height:110px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 </style>
 </head>
@@ -66,7 +67,7 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const TABS=["Orders","Products","Services","Store Info","Reviews","Festival & Wishes"];
 const FORMTABS=["Products","Services","Store Info","Reviews"];
 const CUTS=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
-let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false;
+let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false,bimg;
 
 $("lg").onclick=async()=>{$("lm").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lm").textContent="Wrong email or password."}};
 $("lo").onclick=()=>signOut(auth);
@@ -86,8 +87,9 @@ function draw(){
  if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#view")&&(FORMTABS.includes(tab)||tab.startsWith("Fest"))&&document.activeElement.tagName!=="BODY")return;
  $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Services"?vServices():tab=="Store Info"?vInfo():tab=="Reviews"?vReviews():vFest();
  if(tab=="Products")prev();
+ if(tab=="Store Info")bprev();
 }
-$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";img="";$("view").innerHTML="";draw()}};
+$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";img="";bimg=undefined;$("view").innerHTML="";draw()}};
 const wa=(ph,m)=>{ph=String(ph||"").replace(/\D/g,"");if(ph.length==10)ph="91"+ph;return "https://wa.me/"+ph+"?text="+encodeURIComponent(m)};
 
 function vOrders(){
@@ -128,6 +130,7 @@ function vProducts(){
  +'₹<input class="p" type="number" min="0" value="'+p.price+'" data-pr="'+p.id+'">'
  +'<button class="btn s" data-pe="'+p.id+'">Edit</button><button class="btn d" data-pd="'+p.id+'">Delete</button></div>').join("")+"</div>";
 }
+function bprev(){const v=$("ibp");const src=bimg===undefined?ST.banner:bimg;if(v&&src){v.src=src;v.style.display="block"}else if(v)v.style.display="none"}
 function prev(){const v=$("pv");const src=img||(P.find(p=>p.id==editId)||{}).img;if(v&&src){v.src=src;v.style.display="block"}}
 function vServices(){
  return '<div class="box"><h2>Add a service</h2><label>Service name</label><input id="sn" placeholder="e.g. Party fruit tray">'
@@ -136,8 +139,10 @@ function vServices(){
  +(S.map(s=>'<div class="item"><div class="m"><b>'+esc(s.name)+"</b><br><small>"+esc(s.desc)+" · "+esc(s.price)+'</small></div><button class="btn d" data-sd="'+s.id+'">Delete</button></div>').join("")||"<p>No services yet.</p>")+"</div>";
 }
 function vInfo(){
- return '<div class="box"><h2>Store information (shown on the website)</h2>'
- +'<label>Delivery areas (separate with commas)</label><textarea id="ia" rows="2" placeholder="e.g. Whitefield, Marathahalli, Brookefield, Hoodi, KR Puram">'+esc(ST.areas)+'</textarea>'
+ return '<div class="box"><h2>Homepage banner photo</h2><p class="hint">A wide photo of colourful vegetables and fruits, shown behind the main heading. Use your own photo or a free-to-use one (for example from Pexels or Unsplash), not a picture copied from Google.</p>'
+ +'<input id="ib" type="file" accept="image/*"><img class="bprev" id="ibp"><div class="row" style="margin-top:8px"><button class="btn d" id="ibx">Remove banner</button></div>'
+ +'<button class="btn" id="ibs">Save banner</button><div class="msg ok" id="ibm"></div></div>'
+ +'<div class="box"><h2>Store information (shown on the website)</h2>' +'<label>Delivery areas (separate with commas)</label><textarea id="ia" rows="2" placeholder="e.g. Whitefield, Marathahalli, Brookefield, Hoodi, KR Puram">'+esc(ST.areas)+'</textarea>'
  +'<div class="g2"><div><label>Delivery charge (₹)</label><input id="ic" type="number" min="0" value="'+esc(ST.delCharge??20)+'"></div>'
  +'<div><label>Free delivery above (₹)</label><input id="if" type="number" min="0" value="'+esc(ST.freeAbove??150)+'"></div>'
  +'<div><label>Minimum order (₹, 0 for none)</label><input id="im" type="number" min="0" value="'+esc(ST.minOrder??0)+'"></div><div></div></div>'
@@ -173,6 +178,7 @@ document.addEventListener("change",async e=>{
  if(t.dataset.pa)await updateDoc(doc(db,"products",t.dataset.pa),{active:t.checked});
  if(t.dataset.pr)await updateDoc(doc(db,"products",t.dataset.pr),{price:Number(t.value)||0});
  if(t.id=="pf"&&t.files[0]){img=await shrink(t.files[0]);prev()}
+ if(t.id=="ib"&&t.files[0]){bimg=await shrink(t.files[0],1400,.7);bprev()}
 });
 document.addEventListener("click",async e=>{
  const t=e.target,d=t.dataset||{};
@@ -191,6 +197,9 @@ document.addEventListener("click",async e=>{
  }
  if(t.id=="ss"){const n=$("sn").value.trim();if(!n)return;await addDoc(collection(db,"services"),{name:n,desc:$("sd").value.trim(),price:$("sp").value.trim(),active:true});$("view").innerHTML="";draw()}
  if(t.id=="fv"){await setDoc(doc(db,"settings","site"),{fest:$("fn").value.trim(),pct:Number($("fp").value)||0,start:$("fs").value,end:$("fe").value,wish:$("fw").value.trim(),show:$("fo").checked},{merge:true});$("fm").textContent="Saved. The store is updated."}
+ if(t.id=="ibx"){bimg="";bprev()}
+ if(t.id=="ibs"){if(bimg===undefined){$("ibm").textContent="Choose a photo first.";return}
+  try{await setDoc(doc(db,"settings","site"),{banner:bimg},{merge:true});ST.banner=bimg;bimg=undefined;$("ibm").textContent="Saved. The store banner is updated."}catch(x){alert("Could not save. Try a smaller photo.")}}
  if(t.id=="isv"){await setDoc(doc(db,"settings","site"),{areas:$("ia").value.trim(),delCharge:Number($("ic").value)||0,freeAbove:Number($("if").value)||0,minOrder:Number($("im").value)||0,timings:$("it").value.trim(),cutoff:$("io").value.trim(),about:$("iu").value.trim()},{merge:true});$("im2").textContent="Saved. The store is updated."}
  if(t.id=="rv"){const n=$("rn").value.trim(),x=$("rt").value.trim();if(!n||!x){alert("Please enter the customer name and review.");return}
   const R=[...(Array.isArray(ST.reviews)?ST.reviews:[]),{name:n,area:$("ra").value.trim(),stars:Number($("rs").value),text:x}];
@@ -200,7 +209,7 @@ document.addEventListener("click",async e=>{
   const L=[["Chopped Carrot","Vegetables","250 g",40,["Small cubes","Round slices","Long strips"]],["Chopped Beans","Vegetables","250 g",45,["Fine chop"]],["Cut Onion","Vegetables","250 g",30,["Sliced","Small cubes"]],["Mixed Vegetables","Ready to Cook","500 g",90,["Small cubes"]],["Sambar Pack","Combo Packs","500 g",99,["Small cubes"],"Carrot + Beans + Drumstick + Potato + Onion"],["Salad Pack","Combo Packs","400 g",89,["Round slices"],"Carrot + Cucumber + Beetroot + Capsicum"]];
   for(const r of L)await addDoc(collection(db,"products"),{name:r[0],cat:r[1],unit:r[2],price:r[3],cuts:r[4],desc:r[5]||"",shelf:"2 days",active:true,hide:false,img:""});}
 });
-function shrink(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,600/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.72))};i.src=URL.createObjectURL(f)})}
+function shrink(f,m=600,q=.72){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",q))};i.src=URL.createObjectURL(f)})}
 </script>
 </body>
 </html>

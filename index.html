@@ -20,21 +20,21 @@ header{position:sticky;top:0;z-index:30;background:rgba(251,248,238,.96);backdro
 .logo{font-size:25px;font-weight:800;color:var(--gd)}.logo span{color:var(--g)}
 .links{display:flex;gap:24px;font-weight:700;font-size:15px}.links a:hover{color:var(--g)}
 .cartbtn{background:var(--g);color:#fff;border:0;border-radius:12px;padding:10px 16px;font-weight:800;font-size:15px}
-.hero{padding:44px 0 18px}.hero .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center}
-.pill{display:inline-block;background:#e8f3df;color:var(--g);font-weight:800;font-size:14px;padding:7px 16px;border-radius:999px;margin-bottom:16px}
-h1{font-size:clamp(38px,6vw,64px);line-height:1.07;margin:0 0 16px;font-weight:800}h1 em{font-style:normal;color:var(--g)}
-.lead{font-size:18px;color:var(--mut);max-width:500px;margin:0 0 18px}
+.hero{position:relative;overflow:hidden;background:var(--gd) center/cover no-repeat;color:#fff;min-height:440px;display:flex;align-items:center}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,52,26,.94) 0%,rgba(9,52,26,.8) 42%,rgba(9,52,26,.12) 100%)}
+.hero .wrap{position:relative;width:100%;padding-top:56px;padding-bottom:56px}
+.htext{max-width:560px}
+.emo{position:absolute;right:4%;top:50%;transform:translateY(-50%);width:min(44%,480px);display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:clamp(36px,5vw,64px);text-align:center;line-height:1.2;user-select:none}
+.hero.hasimg .emo{display:none}
+.pill{display:inline-block;background:var(--y);color:var(--gd);font-weight:800;font-size:14px;padding:7px 16px;border-radius:999px;margin-bottom:16px}
+h1{font-size:clamp(38px,6vw,64px);line-height:1.07;margin:0 0 16px;font-weight:800}h1 em{font-style:normal;color:var(--y)}
+.lead{font-size:18px;color:#e8f3df;max-width:500px;margin:0 0 18px}
 .facts{display:flex;flex-wrap:wrap;gap:8px 10px;margin:0 0 22px;padding:0;list-style:none;font-weight:800;font-size:14px;color:var(--gd)}
-.facts li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.facts li{background:#fff;border-radius:999px;padding:6px 14px}
 .btns{display:flex;gap:12px;flex-wrap:wrap}
 .btn{display:inline-block;padding:13px 26px;border-radius:999px;font-weight:800;font-size:16px;border:0}
-.b1{background:var(--g);color:#fff}.b2{background:var(--y);color:var(--gd)}.b3{background:#fff;color:var(--gd)}.b4{background:#25D366;color:#fff}
-.collage{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.collage img,.collage .tile{width:100%;aspect-ratio:1;object-fit:cover;border-radius:22px}
-.collage .tile{display:grid;place-items:center;font-size:clamp(52px,9vw,88px)}
-.collage>:nth-child(2){margin-top:24px}
-.t0{background:#fde6c8}.t1{background:#dcefd0}.t2{background:#fbd9d3}.t3{background:#fbf0b8}
-.offer{max-width:1110px;margin:26px auto 0;background:var(--gd);color:#fff;border-radius:18px;padding:14px 20px;text-align:center;font-size:18px}
+.b1{background:var(--y);color:var(--gd)}.b2{background:var(--y);color:var(--gd)}.b3{background:#fff;color:var(--gd)}.b4{background:#25D366;color:#fff}
+.offer{max-width:1110px;margin:26px auto 0;width:calc(100% - 40px);background:var(--gd);color:#fff;border-radius:18px;padding:14px 20px;text-align:center;font-size:18px}
 .offer b{color:var(--y)}.offer small{display:block;opacity:.85;font-size:14px}
 section{padding:54px 0}
 .head{text-align:center;margin-bottom:24px}.head h2{font-size:clamp(30px,4.5vw,40px);margin:0 0 6px}.head p{margin:0;color:var(--mut)}
@@ -122,7 +122,7 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
 @media(prefers-reduced-motion:reduce){.skel{animation:none}.drawer{transition:none}html{scroll-behavior:auto}}
 @media(max-width:860px){
  .nav{flex-wrap:wrap;padding-bottom:6px}.links{order:3;width:100%;overflow-x:auto;gap:18px;padding-bottom:6px;white-space:nowrap}
- .hero .wrap{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr);gap:12px}.bar{display:block}
+ .hero{min-height:0}.hero:before{background:rgba(9,52,26,.82)}.emo{display:none}.grid{grid-template-columns:repeat(2,1fr);gap:12px}.bar{display:block}
  .steps{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}html{scroll-padding-top:120px}
 }
 @media(max-width:480px){.info{padding:12px}.pic{font-size:48px}.steps{grid-template-columns:1fr}}
@@ -136,18 +136,15 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
  <button class="cartbtn" data-a="open">🛒 Cart (<span class="cnt">0</span>)</button>
 </div></header>
 <main id="top">
-<div class="hero"><div class="wrap">
- <div>
+<div class="hero" id="hero"><div class="emo" aria-hidden="true"><span>🥕</span><span>🥦</span><span>🍅</span><span>🧅</span><span>🍎</span><span>🥒</span><span>🫑</span><span>🍋</span></div>
+<div class="wrap"><div class="htext">
   <span class="pill">Cut fresh. Packed clean.</span>
   <h1 class="serif">Fresh Cut, <em>Ready to Cook</em></h1>
   <p class="lead">Vegetables and fruits washed, cut and packed, then delivered to your door in Bengaluru. Skip the chopping, keep the cooking.</p>
   <ul class="facts"><li id="from">Fresh-cut packs</li><li>Free delivery above ₹<span class="fr">150</span></li><li>Order in a minute on WhatsApp</li></ul>
   <div class="btns"><a class="btn b1" href="#shop">Shop now</a><a class="btn b4" href="https://wa.me/918123806957" target="_blank" rel="noopener">Order on WhatsApp</a></div>
- </div>
- <div id="collage" class="collage"><div class="tile t0">🥕</div><div class="tile t1">🥦</div><div class="tile t2">🍅</div><div class="tile t3">🧅</div></div>
-</div>
+</div></div></div>
 <div class="offer"><b>🎉 FREE DELIVERY ON ORDERS ABOVE ₹<span class="fr">150</span></b><small>Order today and save your cooking prep time.</small></div>
-</div>
 
 <section id="shop"><div class="wrap">
  <div class="head"><h2 class="serif">Shop</h2><p>Pick your items and how you like them cut, then add to cart.</p></div>
@@ -347,8 +344,7 @@ async function load(){
   cat=cats()[0]||"All";tabs();grid();info();
   const bn=[S.show?S.wish:"",dpct()?`${S.fest||"Special offer"}: ${dpct()}% off${S.end?" until "+S.end:""}`:""].filter(Boolean).join("  |  ");
   if(bn){$("banner").textContent=bn;$("banner").hidden=false}
-  const imgs=P.filter(p=>p.img).slice(0,4);
-  if(imgs.length>=2)$("collage").innerHTML=imgs.map(p=>`<img src="${p.img}" alt="${esc(p.name)}">`).join("");
+  if(S.banner){$("hero").style.backgroundImage='url("'+S.banner+'")';$("hero").classList.add("hasimg")}
   if(!c.empty){$("services").hidden=false;$("sv").innerHTML=c.docs.map(d=>d.data()).map(s=>`<div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p><b>${esc(s.price)}</b></div>`).join("")}
  }catch(err){
   console.error(err);info();
