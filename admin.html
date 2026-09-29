@@ -139,7 +139,7 @@ function vServices(){
  +(S.map(s=>'<div class="item"><div class="m"><b>'+esc(s.name)+"</b><br><small>"+esc(s.desc)+" · "+esc(s.price)+'</small></div><button class="btn d" data-sd="'+s.id+'">Delete</button></div>').join("")||"<p>No services yet.</p>")+"</div>";
 }
 function vInfo(){
- return '<div class="box"><h2>Homepage banner photo</h2><p class="hint">A wide photo of colourful vegetables and fruits, shown behind the main heading. Use your own photo or a free-to-use one (for example from Pexels or Unsplash), not a picture copied from Google.</p>'
+ return '<div class="box"><h2>Homepage banner photo</h2><p class="hint">The wide picture at the top of your website. If you leave this empty, the built-in banner (banner.jpg) is shown. Upload a wide photo (about 2.5 times wider than tall) to replace it. Choose a photo with an empty, light area on the left, because your heading and buttons are shown there. Use your own photo or one you have the right to use.</p>'
  +'<input id="ib" type="file" accept="image/*"><img class="bprev" id="ibp"><div class="row" style="margin-top:8px"><button class="btn d" id="ibx">Remove banner</button></div>'
  +'<button class="btn" id="ibs">Save banner</button><div class="msg ok" id="ibm"></div></div>'
  +'<div class="box"><h2>Store information (shown on the website)</h2>' +'<label>Delivery areas (separate with commas)</label><textarea id="ia" rows="2" placeholder="e.g. Whitefield, Marathahalli, Brookefield, Hoodi, KR Puram">'+esc(ST.areas)+'</textarea>'
