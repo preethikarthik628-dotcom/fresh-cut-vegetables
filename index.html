@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fresh Cut Vegetables & Fruits - fresh, hygienic and convenient local service. Order on WhatsApp.">
+  <title>Fresh Cut Vegetables & Fruits</title>
+  <style>
+    :root{
+      --green:#176b3a; --light:#f4faef; --cream:#fffaf0; --yellow:#ffd447;
+      --red:#e84c3d; --dark:#17351f; --white:#fff; --muted:#657267;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--dark);background:var(--cream);line-height:1.5}
+    a{text-decoration:none;color:inherit}
+    .topbar{background:var(--green);color:#fff;text-align:center;padding:8px 14px;font-size:14px}
+    header{position:sticky;top:0;z-index:10;background:rgba(255,250,240,.96);border-bottom:1px solid #e8eadf}
+    .nav{max-width:1100px;margin:auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+    .brand{font-weight:800;color:var(--green);font-size:19px}
+    .navlinks{display:flex;gap:18px;font-size:14px;font-weight:700}
+    .navlinks a:hover{color:var(--red)}
+    .hero{background:linear-gradient(135deg,#eaf7df,#fff8dc);padding:62px 18px 54px;text-align:center}
+    .badge{display:inline-block;background:var(--yellow);padding:7px 14px;border-radius:999px;font-weight:800;margin-bottom:14px}
+    h1{font-size:clamp(38px,8vw,70px);line-height:1.02;margin:0 auto 16px;color:var(--green);max-width:850px}
+    .hero p{font-size:18px;max-width:680px;margin:0 auto 25px;color:#405047}
+    .buttons{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .btn{display:inline-block;padding:13px 20px;border-radius:12px;font-weight:800;border:2px solid var(--green)}
+    .primary{background:var(--green);color:#fff}
+    .secondary{background:#fff;color:var(--green)}
+    section{max-width:1100px;margin:auto;padding:54px 18px}
+    .section-title{text-align:center;margin-bottom:28px}
+    .section-title h2{font-size:32px;margin:0 0 7px;color:var(--green)}
+    .section-title p{margin:0;color:var(--muted)}
+    .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+    .card{background:#fff;border:1px solid #e4e9df;border-radius:18px;overflow:hidden;box-shadow:0 6px 18px rgba(20,55,30,.07)}
+    .emoji{font-size:54px;background:var(--light);padding:22px;text-align:center}
+    .cardbody{padding:18px}
+    .card h3{margin:0 0 7px;font-size:20px}
+    .card p{margin:0 0 13px;color:var(--muted);font-size:14px}
+    .price{font-weight:900;font-size:18px;color:var(--green);margin-bottom:12px}
+    .smallbtn{display:block;text-align:center;background:var(--green);color:#fff;padding:10px;border-radius:10px;font-weight:800}
+    .steps,.benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+    .step,.benefit{background:#fff;border-radius:16px;padding:22px;border:1px solid #e4e9df;text-align:center}
+    .icon{font-size:34px}
+    .step h3,.benefit h3{margin:8px 0 4px}
+    .step p,.benefit p{margin:0;color:var(--muted);font-size:14px}
+    .about{background:#eef7e9;border-radius:24px;padding:30px;max-width:900px;margin:auto}
+    .about p{color:#46554b}
+    .contact{background:var(--green);color:#fff;text-align:center;border-radius:24px;padding:40px 20px}
+    .contact h2{font-size:34px;margin:0 0 8px}
+    .phone{font-size:32px;font-weight:900;color:var(--yellow);margin:12px 0 22px}
+    footer{background:#102b18;color:#dfe9df;text-align:center;padding:25px 18px;font-size:14px}
+    .floating{position:fixed;right:16px;bottom:16px;z-index:20;background:#25D366;color:#fff;padding:13px 17px;border-radius:999px;font-weight:900;box-shadow:0 8px 25px rgba(0,0,0,.2)}
+    @media(max-width:650px){
+      .navlinks{display:none}
+      .nav{padding:12px 15px}
+      .hero{padding:48px 16px}
+      section{padding:42px 15px}
+      .contact h2{font-size:28px}
+      .phone{font-size:27px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">Fresh • Hygienic • Convenient &nbsp; | &nbsp; Call/WhatsApp: 8123806957</div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">🥕 Fresh Cut</a>
+      <nav class="navlinks">
+        <a href="#products">Products</a>
+        <a href="#how">How It Works</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">🌱 Freshly Prepared</span>
+      <h1>Fresh Cut Vegetables & Fruits</h1>
+      <p>Freshly cut and packed with care to save your preparation time. Convenient options for nearby homes and families.</p>
+      <div class="buttons">
+        <a class="btn primary" href="https://wa.me/918123806957?text=Hello%2C%20I%20would%20like%20to%20place%20an%20order." target="_blank">📲 Order on WhatsApp</a>
+        <a class="btn secondary" href="#products">View Products</a>
+      </div>
+    </section>
+
+    <section id="products">
+      <div class="section-title">
+        <h2>Our Products</h2>
+        <p>Sample items — you can change the names and prices later.</p>
+      </div>
+      <div class="products">
+        <article class="card">
+          <div class="emoji">🥕🥦🥔</div><div class="cardbody">
+            <h3>Cut Vegetables</h3><p>Freshly cut everyday cooking vegetables.</p>
+            <div class="price">From ₹50</div>
+            <a class="smallbtn" href="https://wa.me/918123806957?text=Hello%2C%20I%20want%20to%20order%20Cut%20Vegetables." target="_blank">Order Now</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="emoji">🍉🍍🍊</div><div class="cardbody">
+            <h3>Cut Fruits</h3><p>Convenient fresh-cut fruit packs.</p>
+            <div class="price">From ₹60</div>
+            <a class="smallbtn" href="https://wa.me/918123806957?text=Hello%2C%20I%20want%20to%20order%20Cut%20Fruits." target="_blank">Order Now</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="emoji">🧅🍅🥕</div><div class="cardbody">
+            <h3>Cooking Packs</h3><p>Useful combinations such as onion, tomato and vegetables.</p>
+            <div class="price">From ₹50</div>
+            <a class="smallbtn" href="https://wa.me/918123806957?text=Hello%2C%20I%20want%20to%20order%20a%20Cooking%20Pack." target="_blank">Order Now</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="emoji">🥗🍎🥒</div><div class="cardbody">
+            <h3>Fruit & Vegetable Salad</h3><p>Freshly prepared salad options.</p>
+            <div class="price">From ₹60</div>
+            <a class="smallbtn" href="https://wa.me/918123806957?text=Hello%2C%20I%20want%20to%20order%20a%20Salad." target="_blank">Order Now</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="emoji">🍲🥕🫛</div><div class="cardbody">
+            <h3>Ready-to-Cook Packs</h3><p>Pre-cut combinations for convenient cooking.</p>
+            <div class="price">From ₹70</div>
+            <a class="smallbtn" href="https://wa.me/918123806957?text=Hello%2C%20I%20want%20to%20order%20a%20Ready-to-Cook%20Pack." target="_blank">Order Now</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="section-title"><h2>How It Works</h2><p>Simple ordering for your daily needs.</p></div>
+      <div class="steps">
+        <div class="step"><div class="icon">🛒</div><h3>1. Choose</h3><p>Select your products and pack sizes.</p></div>
+        <div class="step"><div class="icon">📲</div><h3>2. Order</h3><p>Send your order through WhatsApp.</p></div>
+        <div class="step"><div class="icon">🔪</div><h3>3. We Prepare</h3><p>Your order is prepared fresh.</p></div>
+        <div class="step"><div class="icon">🏠</div><h3>4. Pickup / Delivery</h3><p>Choose local pickup or delivery.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title"><h2>Why Choose Us?</h2><p>Made for busy local families.</p></div>
+      <div class="benefits">
+        <div class="benefit"><div class="icon">🌱</div><h3>Freshly Prepared</h3><p>Prepared close to order time.</p></div>
+        <div class="benefit"><div class="icon">🧼</div><h3>Hygienic Preparation</h3><p>Careful food handling and clean preparation.</p></div>
+        <div class="benefit"><div class="icon">⏰</div><h3>Saves Your Time</h3><p>Less cutting and preparation at home.</p></div>
+        <div class="benefit"><div class="icon">🏠</div><h3>Local Convenience</h3><p>Pickup or nearby delivery.</p></div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="section-title"><h2>About Us</h2></div>
+      <div class="about">
+        <p>We are a small local home-based business preparing fresh-cut fruits and vegetables for nearby families and working people who want convenient, ready-to-use ingredients.</p>
+        <p><strong>Delivery area:</strong> Bengaluru local area — please contact us to confirm your location.</p>
+        <p><strong>Timings:</strong> Please confirm by WhatsApp before ordering.</p>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="contact">
+        <h2>Ready to Order?</h2>
+        <p>Call or WhatsApp us to check today's availability.</p>
+        <div class="phone">8123806957</div>
+        <div class="buttons">
+          <a class="btn secondary" href="https://wa.me/918123806957?text=Hello%2C%20I%20would%20like%20to%20place%20an%20order." target="_blank">📲 WhatsApp Us</a>
+          <a class="btn secondary" href="tel:+918123806957">📞 Call Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Fresh Cut Vegetables & Fruits</strong><br>
+    Fresh • Hygienic • Convenient<br>
+    © 2026
+  </footer>
+
+  <a class="floating" href="https://wa.me/918123806957?text=Hello%2C%20I%20would%20like%20to%20place%20an%20order." target="_blank">💬 WhatsApp</a>
+</body>
+</html>
