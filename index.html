@@ -239,7 +239,9 @@ let P=[],S={},cart={},cat="All",sel={},qrOK=false;
 const DEL=()=>num(S.delCharge,20),FREE=()=>num(S.freeAbove,150),MIN=()=>num(S.minOrder,0);
 const today=()=>new Date().toLocaleDateString("en-CA");
 const dpct=()=>+S.pct>0&&(!S.start||today()>=S.start)&&(!S.end||today()<=S.end)?+S.pct:0;
-const pr=p=>Math.round(p.price*(100-dpct())/100);
+const extra=(p,c)=>c?num((p.cutx||{})[c],num(p.cutAdd,5)):0;
+const full=(p,c)=>p.price+extra(p,c);
+const pr=(p,c)=>Math.round(full(p,c)*(100-dpct())/100);
 const cats=()=>{const c=[...new Set(P.map(p=>p.cat||"Others"))];return c.length>1?["All",...c]:c};
 const cuts=p=>Array.isArray(p.cuts)?p.cuts.filter(Boolean):(p.cut?[p.cut]:[]);
 const curCut=p=>{const c=cuts(p);return c.length?(c.includes(sel[p.id])?sel[p.id]:c[0]):""};
@@ -254,8 +256,8 @@ function grid(){
  $("grid").innerHTML=P.filter(p=>cat=="All"||(p.cat||"Others")==cat).map(p=>{
   const out=p.active===false,cs=cuts(p),c=curCut(p),q=cart[key(p,c)]?.q||0;
   const ctl=out?`<button class="add" disabled>Unavailable</button>`:q?`<div class="qty"><button data-a="q" data-id="${esc(p.id)}" data-d="-1" aria-label="Less">−</button><span>${q}</span><button data-a="q" data-id="${esc(p.id)}" data-d="1" aria-label="More">+</button></div>`:`<button class="add" data-a="q" data-id="${esc(p.id)}" data-d="1">Add to cart</button>`;
-  const cutUI=cs.length>1?`<label class="cutsel">✂ Cut<select data-a="cut" data-id="${esc(p.id)}" aria-label="Cutting type for ${esc(p.name)}">${cs.map(x=>`<option${x==c?" selected":""}>${esc(x)}</option>`).join("")}</select></label>`:cs.length==1?`<span class="cutb">✂ ${esc(cs[0])}</span>`:"";
-  return `<div class="card${out?" out":""}"><div class="pic">${p.img?`<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`:emoji(p)}</div><div class="info"><h3>${esc(p.name)}</h3><div class="pk"><span>${esc(p.unit)}</span><span class="av ${out?"no":"yes"}">${out?"Out of stock":"In stock"}</span></div>${cutUI}${p.desc?`<p class="desc">${esc(p.desc)}</p>`:""}${p.shelf?`<p class="shelf">Best within ${esc(p.shelf)} · keep refrigerated</p>`:""}<div class="spacer"></div><div class="row"><span class="price">₹${pr(p)}${d?` <s>₹${p.price}</s>`:""}</span>${ctl}</div></div></div>`}).join("")||'<p class="empty">No items in this category yet.</p>';
+  const cutUI=cs.length>1?`<label class="cutsel">✂ Cut<select data-a="cut" data-id="${esc(p.id)}" aria-label="Cutting type for ${esc(p.name)}">${cs.map(x=>`<option value="${esc(x)}"${x==c?" selected":""}>${esc(x)} · ₹${pr(p,x)}</option>`).join("")}</select></label>`:cs.length==1?`<span class="cutb">✂ ${esc(cs[0])}</span>`:"";
+  return `<div class="card${out?" out":""}"><div class="pic">${p.img?`<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`:emoji(p)}</div><div class="info"><h3>${esc(p.name)}</h3><div class="pk"><span>${esc(p.unit)}</span><span class="av ${out?"no":"yes"}">${out?"Out of stock":"In stock"}</span></div>${cutUI}${p.desc?`<p class="desc">${esc(p.desc)}</p>`:""}${p.shelf?`<p class="shelf">Best within ${esc(p.shelf)} · keep refrigerated</p>`:""}<div class="spacer"></div><div class="row"><span class="price">₹${pr(p,c)}${d?` <s>₹${full(p,c)}</s>`:""}</span>${ctl}</div></div></div>`}).join("")||'<p class="empty">No items in this category yet.</p>';
 }
 function tot(){let s=0,c=0;for(const k in cart){s+=cart[k].p*cart[k].q;c+=cart[k].q}const d=s?(s>=FREE()?0:DEL()):0;return{s,c,d,t:s+d}}
 function upd(){
@@ -285,7 +287,7 @@ function send(){
 }
 function info(){
  document.querySelectorAll(".fr").forEach(e=>e.textContent=FREE());
- const pr0=P.filter(p=>p.active!==false&&p.price>0).map(pr);
+ const pr0=P.filter(p=>p.active!==false&&p.price>0).map(p=>{const cs=cuts(p);return cs.length?Math.min(...cs.map(c=>pr(p,c))):pr(p,"")});
  $("from").textContent=pr0.length?"Packs from ₹"+Math.min(...pr0):"Fresh-cut packs";
  const areas=(S.areas||"").split(",").map(s=>s.trim()).filter(Boolean);
  $("areas").innerHTML=areas.length?areas.map(a=>`<span>${esc(a)}</span>`).join(""):"<p style='margin:0;color:var(--mut)'>We deliver across Bengaluru. Message us your area on WhatsApp to confirm.</p>";
@@ -320,7 +322,7 @@ document.addEventListener("click",e=>{
  else if(a=="send")send();
  else if(a=="q"){const p=P.find(x=>x.id==b.dataset.id);if(!p||p.active===false)return;
   const c=curCut(p),k=key(p,c),q=(cart[k]?.q||0)+ +b.dataset.d;
-  if(q<=0)delete cart[k];else cart[k]={n:p.name,u:p.unit,c,p:pr(p),q};grid();upd()}
+  if(q<=0)delete cart[k];else cart[k]={n:p.name,u:p.unit,c,p:pr(p,c),q};grid();upd()}
  else if(a=="cq"){const it=cart[b.dataset.k];if(!it)return;it.q+=+b.dataset.d;if(it.q<=0)delete cart[b.dataset.k];grid();upd()}
 });
 document.addEventListener("change",e=>{

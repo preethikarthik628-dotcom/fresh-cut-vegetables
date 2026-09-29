@@ -39,6 +39,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-ra
 .stk{display:flex;align-items:center;gap:5px;margin:0;font-size:13px;white-space:nowrap}.stk input{width:auto}
 .tag.no{background:#f8d7d4}.tag.hid{background:#e5e5e5}.hint{color:var(--mut);font-size:13px;margin:4px 0 0}
 .bprev{width:100%;max-width:420px;aspect-ratio:16/6;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
+.crow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.crow input{width:80px;padding:6px 8px}.crow span:first-child{font-weight:700;flex:1}.cpv{margin-top:8px}
 .prev{width:110px;height:110px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 </style>
 </head>
@@ -66,6 +67,7 @@ const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const TABS=["Orders","Products","Services","Store Info","Reviews","Festival & Wishes"];
 const FORMTABS=["Products","Services","Store Info","Reviews"];
+const cx=(p,c)=>{const v=(p.cutx||{})[c];return v!==undefined&&v!==""?Number(v):(p.cutAdd!==undefined?Number(p.cutAdd):5)};
 const CUTS=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
 let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false,bimg;
 
@@ -86,7 +88,7 @@ function draw(){
  $("tabs").innerHTML=TABS.map(t=>'<button class="tab'+(t==tab?" on":"")+'" data-t="'+t+'">'+t+(t=="Orders"?" ("+O.filter(o=>o.status=="New").length+" new)":"")+"</button>").join("");
  if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#view")&&(FORMTABS.includes(tab)||tab.startsWith("Fest"))&&document.activeElement.tagName!=="BODY")return;
  $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Services"?vServices():tab=="Store Info"?vInfo():tab=="Reviews"?vReviews():vFest();
- if(tab=="Products")prev();
+ if(tab=="Products"){prev();cutRows()}
  if(tab=="Store Info")bprev();
 }
 $("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";img="";bimg=undefined;$("view").innerHTML="";draw()}};
@@ -115,8 +117,10 @@ function vProducts(){
  +'<div><label>Pack size (e.g. 500 g)</label><input id="pu" value="'+esc(e.unit)+'"></div></div>'
  +'<label>Cutting type (tick one or more; customers choose if you tick several)</label><div class="chips">'+CUTS.map(c=>'<label class="chip"><input type="checkbox" class="cutck" value="'+esc(c)+'"'+(ec.includes(c)?" checked":"")+'>'+esc(c)+"</label>").join("")+"</div>"
  +'<label>Other cutting types (optional, separate with commas)</label><input id="po" placeholder="e.g. Thin sticks, Half moons" value="'+esc(other)+'">'
+ +'<div class="g2"><div><label>Cutting charge (₹) added to the price of every cutting type</label><input id="pk" type="number" min="0" value="'+esc(e.cutAdd??5)+'"></div><div></div></div>'
+ +'<div id="cpv" class="cpv"></div><p class="hint">Cut prices are worked out automatically: base price + cutting charge. To give one cut a different extra amount, type it in that cut\'s row. When you change the base price, every cut price updates by itself.</p>'
  +'<label>What is inside / short note (optional)</label><input id="pd" placeholder="e.g. Carrot + Beans + Potato + Onion" value="'+esc(e.desc)+'">'
- +'<div class="g2"><div><label>Price (₹)</label><input id="pp" type="number" min="0" value="'+esc(e.price)+'"></div>'
+ +'<div class="g2"><div><label>Base price (₹) for the plain item</label><input id="pp" type="number" min="0" value="'+esc(e.price)+'"></div>'
  +'<div><label>Best within (optional)</label><input id="pb" placeholder="e.g. 2 days" value="'+esc(e.shelf)+'"></div></div>'
  +'<label>Photo</label><input id="pf" type="file" accept="image/*">'
  +'<img class="prev" id="pv"><label><input type="checkbox" id="pa" style="width:auto" '+(e.active===false?"":"checked")+'> In stock (untick to show as Out of stock)</label>'
@@ -125,10 +129,22 @@ function vProducts(){
  +'<div class="box"><h2>All products ('+P.length+")</h2>"
  +(P.length?"":'<p>No products yet. Add your first one above, or <button class="btn s" id="seed">add starter products</button> and edit them afterwards.</p>')
  +P.map(p=>'<div class="item">'+(p.img?'<img src="'+p.img+'">':'<div class="ph">🥬</div>')
- +'<div class="m"><b>'+esc(p.name)+"</b> "+(p.active===false?'<span class="tag no">Out of stock</span> ':"")+(p.hide?'<span class="tag hid">Hidden</span>':"")+"<br><small>"+esc(p.cat)+" · "+esc(p.unit)+(Array.isArray(p.cuts)&&p.cuts.length?" · Cut: "+esc(p.cuts.join(", ")):"")+"</small></div>"
+ +'<div class="m"><b>'+esc(p.name)+"</b> "+(p.active===false?'<span class="tag no">Out of stock</span> ':"")+(p.hide?'<span class="tag hid">Hidden</span>':"")+"<br><small>"+esc(p.cat)+" · "+esc(p.unit)+(Array.isArray(p.cuts)&&p.cuts.length?" · Cut: "+esc(p.cuts.map(c=>c+" ₹"+(p.price+cx(p,c))).join(", ")):"")+"</small></div>"
  +'<label class="stk"><input type="checkbox" data-pa="'+p.id+'"'+(p.active===false?"":" checked")+'> In stock</label>'
  +'₹<input class="p" type="number" min="0" value="'+p.price+'" data-pr="'+p.id+'">'
  +'<button class="btn s" data-pe="'+p.id+'">Edit</button><button class="btn d" data-pd="'+p.id+'">Delete</button></div>').join("")+"</div>";
+}
+function cutRows(){
+ const box=$("cpv");if(!box)return;
+ const old={};box.querySelectorAll(".cutov").forEach(i=>old[i.dataset.c]=i.value);
+ const ex=(P.find(p=>p.id==editId)||{}).cutx||{};
+ const list=[...document.querySelectorAll(".cutck:checked")].map(x=>x.value).concat(($("po").value||"").split(",").map(x=>x.trim()).filter(Boolean));
+ box.innerHTML=list.map(c=>'<div class="crow"><span>'+esc(c)+'</span><span>Extra ₹ <input class="cutov" type="number" min="0" data-c="'+esc(c)+'" placeholder="auto" value="'+esc(c in old?old[c]:(ex[c]===undefined?"":ex[c]))+'"></span><b class="cfp" data-c="'+esc(c)+'"></b></div>').join("");
+ cutPrice();
+}
+function cutPrice(){
+ const base=Number($("pp")?.value)||0,add=$("pk")&&$("pk").value!==""?Number($("pk").value):5;
+ document.querySelectorAll(".crow").forEach(r=>{const i=r.querySelector(".cutov"),v=i.value===""?add:Number(i.value);r.querySelector(".cfp").textContent="= ₹"+(base+v)});
 }
 function bprev(){const v=$("ibp");const src=bimg===undefined?ST.banner:bimg;if(v&&src){v.src=src;v.style.display="block"}else if(v)v.style.display="none"}
 function prev(){const v=$("pv");const src=img||(P.find(p=>p.id==editId)||{}).img;if(v&&src){v.src=src;v.style.display="block"}}
@@ -172,8 +188,10 @@ function vFest(){
  +(ph.map(o=>'<div class="item"><div class="m"><b>'+esc(o.name)+"</b><br><small>"+esc(o.phone)+'</small></div><a class="btn s btn w" style="color:#fff" target="_blank" href="'+wa(o.phone,ST.wish||"Greetings from Fresh Cut!")+'">Send wish</a></div>').join("")||"<p>Customers who order will appear here.</p>")+"</div>";
 }
 
+document.addEventListener("input",e=>{const t=e.target;if(t.id=="pp"||t.id=="pk"||(t.classList&&t.classList.contains("cutov")))cutPrice();if(t.id=="po")cutRows()});
 document.addEventListener("change",async e=>{
  const t=e.target;
+ if(t.classList&&t.classList.contains("cutck"))cutRows();
  if(t.dataset.os)await updateDoc(doc(db,"orders",t.dataset.os),{status:t.value});
  if(t.dataset.pa)await updateDoc(doc(db,"products",t.dataset.pa),{active:t.checked});
  if(t.dataset.pr)await updateDoc(doc(db,"products",t.dataset.pr),{price:Number(t.value)||0});
@@ -191,7 +209,8 @@ document.addEventListener("click",async e=>{
   const n=$("pn").value.trim();if(!n||$("pp").value===""){alert("Please enter a name and price.");return}
   const old=P.find(p=>p.id==editId)||{};
   const cuts=[...document.querySelectorAll(".cutck:checked")].map(x=>x.value).concat($("po").value.split(",").map(x=>x.trim()).filter(Boolean));
-  const data={name:n,cat:$("pc").value.trim()||"Products",unit:$("pu").value.trim(),price:Number($("pp").value),active:$("pa").checked,hide:$("px").checked,cuts,desc:$("pd").value.trim(),shelf:$("pb").value.trim(),img:img||old.img||""};
+  const cutx={};document.querySelectorAll(".cutov").forEach(i=>{if(i.value!=="")cutx[i.dataset.c]=Number(i.value)});
+  const data={cutAdd:$("pk").value===""?5:Number($("pk").value),cutx,name:n,cat:$("pc").value.trim()||"Products",unit:$("pu").value.trim(),price:Number($("pp").value),active:$("pa").checked,hide:$("px").checked,cuts,desc:$("pd").value.trim(),shelf:$("pb").value.trim(),img:img||old.img||""};
   try{if(editId)await setDoc(doc(db,"products",editId),data);else await addDoc(collection(db,"products"),data);
    editId="";img="";$("view").innerHTML="";draw();alert("Saved.")}catch(x){alert("Could not save. If the photo is very large, try a smaller one.")}
  }
