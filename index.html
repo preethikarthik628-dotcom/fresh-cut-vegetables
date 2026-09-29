@@ -139,7 +139,7 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
   <h1 class="serif">Fresh Cut, <em>Ready to Cook</em></h1>
   <p class="lead">Vegetables and fruits washed, cut and packed, then delivered to your door in Bengaluru. Skip the chopping, keep the cooking.</p>
   <ul class="facts"><li id="from">Fresh-cut packs</li><li>Free delivery above ₹<span class="fr">150</span></li><li>Order in a minute on WhatsApp</li></ul>
-  <div class="btns"><a class="btn b1" href="#shop">Shop now</a><a class="btn b4" href="https://wa.me/91+ 91 8123806957" target="_blank" rel="noopener">Order on WhatsApp</a></div>
+  <div class="btns"><a class="btn b1" href="#shop">Shop now</a><a class="btn b4" href="https://wa.me/918123806957" target="_blank" rel="noopener">Order on WhatsApp</a></div>
  </div></div>
 <div class="offer"><b>🎉 FREE DELIVERY ON ORDERS ABOVE ₹<span class="fr">150</span></b><small>Order today and save your cooking prep time.</small></div>
 
@@ -147,7 +147,7 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
  <div class="head"><h2 class="serif">Shop</h2><p>Pick your items and how you like them cut, then add to cart.</p></div>
  <div class="tabs" id="tabs"></div>
  <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
- <noscript><p class="empty">Please turn on JavaScript to see our items, or WhatsApp us on + 91 8123806957.</p></noscript>
+ <noscript><p class="empty">Please turn on JavaScript to see our items, or WhatsApp us on 8123806957.</p></noscript>
  <p class="note">Every pack is washed, cut fresh for your order and packed hygienically. Please refrigerate after delivery and use within the time shown on each item.</p>
 </div></section>
 
@@ -201,12 +201,12 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
 
 <section id="contact" style="padding-top:0"><div class="wrap"><div class="cta">
  <h2 class="serif">Questions? Talk to us</h2><p>Bengaluru delivery. Call or WhatsApp to check today's availability.</p>
- <a class="phone" href="tel:+91+ 91 8123806957">+ 91 8123806957</a>
- <div class="btns" style="justify-content:center"><a class="btn b3" href="https://wa.me/91+ 91 8123806957" target="_blank" rel="noopener">WhatsApp us</a><a class="btn b2" href="tel:+91+ 91 8123806957">Call us</a></div>
+ <a class="phone" href="tel:+918123806957">8123806957</a>
+ <div class="btns" style="justify-content:center"><a class="btn b3" href="https://wa.me/918123806957" target="_blank" rel="noopener">WhatsApp us</a><a class="btn b2" href="tel:+918123806957">Call us</a></div>
 </div></div></section>
 </main>
 <footer>FreshCut Vegetables & Fruits · Bengaluru · © 2026</footer>
-<a class="wa" href="https://wa.me/91+ 91 8123806957" target="_blank" rel="noopener">WhatsApp</a>
+<a class="wa" href="https://wa.me/918123806957" target="_blank" rel="noopener">WhatsApp</a>
 <button class="bar" data-a="open">🛒 Cart (<span class="cnt">0</span>)</button>
 
 <div id="cart"><div class="shade" data-a="close"></div>
@@ -231,7 +231,7 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-ap
 import{getFirestore,collection,getDocs,doc,getDoc,addDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const CFG={apiKey:"AIzaSyATqn1InnyTkyHqIfbLw4LZQ4fGLzwf52A",authDomain:"freshcut-e85c7.firebaseapp.com",projectId:"freshcut-e85c7",storageBucket:"freshcut-e85c7.firebasestorage.app",messagingSenderId:"591946013615",appId:"1:591946013615:web:7812e8cd886d33e6992d5a"};
 const db=getFirestore(initializeApp(CFG));
-const PHONE="91+ 91 8123806957";
+const PHONE="918123806957";
 const $=i=>document.getElementById(i);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=(v,d)=>{const n=Number(v);return v===undefined||v===null||v===""||isNaN(n)?d:n};
@@ -250,7 +250,7 @@ const emoji=p=>{const s=((p.name||"")+" "+(p.cat||"")).toLowerCase();for(const[k
 function tabs(){$("tabs").innerHTML=cats().length>1?cats().map(k=>`<button class="tab${k==cat?" on":""}" data-a="tab" data-c="${esc(k)}">${esc(k)}</button>`).join(""):""}
 function grid(){
  const d=dpct();
- if(!P.length){$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+ 91 8123806957</b></a></p>';return}
+ if(!P.length){$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>8123806957</b></a></p>';return}
  $("grid").innerHTML=P.filter(p=>cat=="All"||(p.cat||"Others")==cat).map(p=>{
   const out=p.active===false,cs=cuts(p),c=curCut(p),q=cart[key(p,c)]?.q||0;
   const ctl=out?`<button class="add" disabled>Unavailable</button>`:q?`<div class="qty"><button data-a="q" data-id="${esc(p.id)}" data-d="-1" aria-label="Less">−</button><span>${q}</span><button data-a="q" data-id="${esc(p.id)}" data-d="1" aria-label="More">+</button></div>`:`<button class="add" data-a="q" data-id="${esc(p.id)}" data-d="1">Add to cart</button>`;
@@ -306,7 +306,7 @@ function info(){
   ["Where do you deliver?",areas.length?"We currently deliver to: "+areas.join(", ")+".":"We deliver across Bengaluru. Message us your area on WhatsApp to confirm."],
   ["What is the minimum order?",MIN()?"The minimum order is ₹"+MIN()+".":"There is no minimum order. Delivery is ₹"+DEL()+", and free above ₹"+FREE()+"."],
   ["Do you accept cash on delivery?","Yes, you can pay in cash when your order arrives."+(qrOK?" Online QR payment is also available.":"")],
-  ["Can I order through WhatsApp?","Yes. Add items to your cart and tap Place Order on WhatsApp, or simply message us on + 91 8123806957."],
+  ["Can I order through WhatsApp?","Yes. Add items to your cart and tap Place Order on WhatsApp, or simply message us on 8123806957."],
   ["Can I choose how vegetables are cut?","Yes. Items list their available cutting types (like small cubes, long strips or round slices). Message us for anything special."],
   ["What are your delivery timings?",S.timings||"Message us on WhatsApp for today's delivery slot."]
  ];
@@ -345,7 +345,7 @@ async function load(){
   if(!c.empty){$("services").hidden=false;$("sv").innerHTML=c.docs.map(d=>d.data()).map(s=>`<div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p><b>${esc(s.price)}</b></div>`).join("")}
  }catch(err){
   console.error(err);info();
-  $("grid").innerHTML='<p class="empty">We could not load our items right now. <button class="tab" id="retry">Try again</button><br><br>Or order directly on WhatsApp: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+ 91 8123806957</b></a></p>';
+  $("grid").innerHTML='<p class="empty">We could not load our items right now. <button class="tab" id="retry">Try again</button><br><br>Or order directly on WhatsApp: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>8123806957</b></a></p>';
   $("retry").onclick=load;
  }
 }
