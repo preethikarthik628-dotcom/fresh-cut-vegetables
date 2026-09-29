@@ -61,6 +61,11 @@ section{padding:54px 0}
 .add:disabled{background:#e6e6dc;color:#8a8f86;cursor:not-allowed}
 .qty{display:flex;align-items:center;gap:8px;background:var(--g);color:#fff;border-radius:999px;padding:3px 6px}
 .qty button{background:none;border:0;color:#fff;font-size:20px;width:28px;height:28px;font-weight:800}
+.ctile{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;padding:0;text-align:left;display:flex;flex-direction:column;font:inherit;color:inherit;cursor:pointer}
+.ctile:hover{border-color:var(--g);box-shadow:0 6px 20px rgba(20,60,30,.1)}
+.cimg{aspect-ratio:4/3;display:grid;place-items:center;background:linear-gradient(160deg,#f1f8e8,#fff6d8);font-size:56px}.cimg img{width:100%;height:100%;object-fit:cover}
+.ctile b{padding:12px 16px 0;font-size:19px}.ctile small{padding:0 16px 14px;color:var(--mut);font-weight:700}
+#crumb{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}#crumb:empty{display:none}.ctitle{font-size:28px;font-weight:800}
 .skel{height:300px;border-radius:20px;background:linear-gradient(90deg,#f0eedd,#f8f6ea,#f0eedd);background-size:200% 100%;animation:sk 1.4s infinite}
 @keyframes sk{to{background-position:-200% 0}}
 .empty{grid-column:1/-1;text-align:center;color:var(--mut)}
@@ -144,8 +149,9 @@ input,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6c8;border-radi
 <div class="offer"><b>🎉 FREE DELIVERY ON ORDERS ABOVE ₹<span class="fr">150</span></b><small>Order today and save your cooking prep time.</small></div>
 
 <section id="shop"><div class="wrap">
- <div class="head"><h2 class="serif">Shop</h2><p>Pick your items and how you like them cut, then add to cart.</p></div>
+ <div class="head"><h2 class="serif">Shop</h2><p>Choose how you like it cut, then pick your items.</p></div>
  <div class="tabs" id="tabs"></div>
+ <div id="crumb"></div>
  <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
  <noscript><p class="empty">Please turn on JavaScript to see our items, or WhatsApp us on +91 8123806957.</p></noscript>
  <p class="note">Every pack is washed, cut fresh for your order and packed hygienically. Please refrigerate after delivery and use within the time shown on each item.</p>
@@ -235,7 +241,8 @@ const PHONE="918123806957";
 const $=i=>document.getElementById(i);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=(v,d)=>{const n=Number(v);return v===undefined||v===null||v===""||isNaN(n)?d:n};
-let P=[],S={},cart={},cat="All",sel={},qrOK=false;
+let P=[],S={},cart={},cat="All",cutSel=null,qrOK=false;
+const NONE="__none",ORDER=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
 const DEL=()=>num(S.delCharge,20),FREE=()=>num(S.freeAbove,150),MIN=()=>num(S.minOrder,0);
 const today=()=>new Date().toLocaleDateString("en-CA");
 const dpct=()=>+S.pct>0&&(!S.start||today()>=S.start)&&(!S.end||today()<=S.end)?+S.pct:0;
@@ -244,20 +251,40 @@ const full=(p,c)=>p.price+extra(p,c);
 const pr=(p,c)=>Math.round(full(p,c)*(100-dpct())/100);
 const cats=()=>{const c=[...new Set(P.map(p=>p.cat||"Others"))];return c.length>1?["All",...c]:c};
 const cuts=p=>Array.isArray(p.cuts)?p.cuts.filter(Boolean):(p.cut?[p.cut]:[]);
-const curCut=p=>{const c=cuts(p);return c.length?(c.includes(sel[p.id])?sel[p.id]:c[0]):""};
 const key=(p,c)=>p.id+"|"+c;
 const EMO=[["carrot","🥕"],["bean","🫘"],["onion","🧅"],["potato","🥔"],["tomato","🍅"],["cucumber","🥒"],["capsicum","🫑"],["pepper","🫑"],["brinjal","🍆"],["cabbage","🥬"],["cauliflower","🥦"],["broccoli","🥦"],["corn","🌽"],["garlic","🧄"],["ginger","🫚"],["beet","🟣"],["papaya","🍈"],["pineapple","🍍"],["watermelon","🍉"],["melon","🍈"],["mango","🥭"],["apple","🍎"],["banana","🍌"],["grape","🍇"],["orange","🍊"],["salad","🥗"],["fruit","🍓"],["sambar","🍲"],["combo","🍲"],["mixed","🥗"]];
 const emoji=p=>{const s=((p.name||"")+" "+(p.cat||"")).toLowerCase();for(const[k,e]of EMO)if(s.includes(k))return e;return"🥬"};
 
+const inCat=p=>cat=="All"||(p.cat||"Others")==cat;
+const has=(p,c)=>c==NONE?cuts(p).length==0:cuts(p).includes(c);
+const cutName=k=>k==NONE?"As it is (no cutting)":k;
+function allCuts(){
+ const set=new Set();let none=false;
+ P.forEach(p=>{const c=cuts(p);if(c.length)c.forEach(x=>set.add(x));else none=true});
+ const l=[...set].sort((x,y)=>{const i=ORDER.indexOf(x),j=ORDER.indexOf(y);return(i<0?99:i)-(j<0?99:j)||x.localeCompare(y)});
+ if(none&&l.length)l.push(NONE);
+ return l;
+}
 function tabs(){$("tabs").innerHTML=cats().length>1?cats().map(k=>`<button class="tab${k==cat?" on":""}" data-a="tab" data-c="${esc(k)}">${esc(k)}</button>`).join(""):""}
+function view(){
+ tabs();
+ if(!P.length){$("crumb").innerHTML="";$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+91 8123806957</b></a></p>';return}
+ if(cutSel===null&&!allCuts().length)cutSel=NONE;
+ cutSel===null?tiles():grid();
+}
+function tiles(){
+ $("crumb").innerHTML="";
+ const l=allCuts().map(k=>({k,items:P.filter(p=>inCat(p)&&has(p,k))})).filter(x=>x.items.length);
+ $("grid").innerHTML=l.map(x=>{const im=x.items.find(p=>p.img),n=x.items.length;
+  return `<button class="ctile" data-a="pick" data-c="${esc(x.k)}"><span class="cimg">${im?`<img src="${im.img}" alt="" loading="lazy">`:"✂️"}</span><b>${esc(cutName(x.k))}</b><small>${n} item${n>1?"s":""}</small></button>`}).join("")||'<p class="empty">No items in this category yet.</p>';
+}
 function grid(){
- const d=dpct();
- if(!P.length){$("grid").innerHTML='<p class="empty">Our menu is being updated. Message us on WhatsApp to order today: <a href="https://wa.me/'+PHONE+'" target="_blank" rel="noopener"><b>+91 8123806957</b></a></p>';return}
- $("grid").innerHTML=P.filter(p=>cat=="All"||(p.cat||"Others")==cat).map(p=>{
-  const out=p.active===false,cs=cuts(p),c=curCut(p),q=cart[key(p,c)]?.q||0;
+ const d=dpct(),c=cutSel==NONE?"":cutSel;
+ $("crumb").innerHTML=(allCuts().length?'<button class="tab" data-a="back">← All cutting types</button>':"")+`<span class="ctitle serif">${esc(cutName(cutSel))}</span>`;
+ $("grid").innerHTML=P.filter(p=>inCat(p)&&has(p,cutSel)).map(p=>{
+  const out=p.active===false,q=cart[key(p,c)]?.q||0;
   const ctl=out?`<button class="add" disabled>Unavailable</button>`:q?`<div class="qty"><button data-a="q" data-id="${esc(p.id)}" data-d="-1" aria-label="Less">−</button><span>${q}</span><button data-a="q" data-id="${esc(p.id)}" data-d="1" aria-label="More">+</button></div>`:`<button class="add" data-a="q" data-id="${esc(p.id)}" data-d="1">Add to cart</button>`;
-  const cutUI=cs.length>1?`<label class="cutsel">✂ Cut<select data-a="cut" data-id="${esc(p.id)}" aria-label="Cutting type for ${esc(p.name)}">${cs.map(x=>`<option value="${esc(x)}"${x==c?" selected":""}>${esc(x)} · ₹${pr(p,x)}</option>`).join("")}</select></label>`:cs.length==1?`<span class="cutb">✂ ${esc(cs[0])}</span>`:"";
-  return `<div class="card${out?" out":""}"><div class="pic">${p.img?`<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`:emoji(p)}</div><div class="info"><h3>${esc(p.name)}</h3><div class="pk"><span>${esc(p.unit)}</span><span class="av ${out?"no":"yes"}">${out?"Out of stock":"In stock"}</span></div>${cutUI}${p.desc?`<p class="desc">${esc(p.desc)}</p>`:""}${p.shelf?`<p class="shelf">Best within ${esc(p.shelf)} · keep refrigerated</p>`:""}<div class="spacer"></div><div class="row"><span class="price">₹${pr(p,c)}${d?` <s>₹${full(p,c)}</s>`:""}</span>${ctl}</div></div></div>`}).join("")||'<p class="empty">No items in this category yet.</p>';
+  return `<div class="card${out?" out":""}"><div class="pic">${p.img?`<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`:emoji(p)}</div><div class="info"><h3>${esc(p.name)}</h3><div class="pk"><span>${esc(p.unit)}</span><span class="av ${out?"no":"yes"}">${out?"Out of stock":"In stock"}</span></div>${c?`<span class="cutb">✂ ${esc(c)}</span>`:""}${p.desc?`<p class="desc">${esc(p.desc)}</p>`:""}${p.shelf?`<p class="shelf">Best within ${esc(p.shelf)} · keep refrigerated</p>`:""}<div class="spacer"></div><div class="row"><span class="price">₹${pr(p,c)}${d?` <s>₹${full(p,c)}</s>`:""}</span>${ctl}</div></div></div>`}).join("")||'<p class="empty">No items in this category for this cutting type.</p>';
 }
 function tot(){let s=0,c=0;for(const k in cart){s+=cart[k].p*cart[k].q;c+=cart[k].q}const d=s?(s>=FREE()?0:DEL()):0;return{s,c,d,t:s+d}}
 function upd(){
@@ -283,7 +310,7 @@ function send(){
  items.forEach(c=>m+=`- ${c.n} (${c.u}${c.c?", "+c.c:""}) x ${c.q} = ₹${c.p*c.q}\n`);
  m+=`\nOrder total: ₹${t.s}\nDelivery: ${t.d?"₹"+t.d:"FREE"}\nGrand total: ₹${t.t}\n\nPayment: ${payment}\nName: ${n}\nPhone: ${ph}\nAddress: ${ad}`;
  window.open("https://wa.me/"+PHONE+"?text="+encodeURIComponent(m),"_blank");
- cart={};upd();grid();$("cart").className="";
+ cart={};upd();view();$("cart").className="";
 }
 function info(){
  document.querySelectorAll(".fr").forEach(e=>e.textContent=FREE());
@@ -318,16 +345,17 @@ document.addEventListener("click",e=>{
  const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
  if(a=="open"){upd();$("cart").className="open"}
  else if(a=="close")$("cart").className="";
- else if(a=="tab"){cat=b.dataset.c;tabs();grid()}
+ else if(a=="tab"){cat=b.dataset.c;view()}
+ else if(a=="pick"){cutSel=b.dataset.c;view();$("shop").scrollIntoView()}
+ else if(a=="back"){cutSel=null;view()}
  else if(a=="send")send();
  else if(a=="q"){const p=P.find(x=>x.id==b.dataset.id);if(!p||p.active===false)return;
-  const c=curCut(p),k=key(p,c),q=(cart[k]?.q||0)+ +b.dataset.d;
-  if(q<=0)delete cart[k];else cart[k]={n:p.name,u:p.unit,c,p:pr(p,c),q};grid();upd()}
- else if(a=="cq"){const it=cart[b.dataset.k];if(!it)return;it.q+=+b.dataset.d;if(it.q<=0)delete cart[b.dataset.k];grid();upd()}
+  const c=cutSel==NONE?"":cutSel,k=key(p,c),q=(cart[k]?.q||0)+ +b.dataset.d;
+  if(q<=0)delete cart[k];else cart[k]={n:p.name,u:p.unit,c,p:pr(p,c),q};view();upd()}
+ else if(a=="cq"){const it=cart[b.dataset.k];if(!it)return;it.q+=+b.dataset.d;if(it.q<=0)delete cart[b.dataset.k];view();upd()}
 });
 document.addEventListener("change",e=>{
  const t=e.target;
- if(t.dataset&&t.dataset.a=="cut"){sel[t.dataset.id]=t.value;grid()}
  if(t.name=="pm"){const o=t.value!="Cash on delivery";$("qr").style.display=o?"block":"none";$("l1").className=o?"":"sel";$("l2").className=o?"sel":""}
 });
 // Online payment is only offered when a real qr.png exists.
@@ -340,7 +368,7 @@ async function load(){
   const[a,b,c]=await Promise.race([Promise.all([getDocs(collection(db,"products")),getDoc(doc(db,"settings","site")),getDocs(collection(db,"services"))]),timeout]);
   P=a.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.hide).sort((x,y)=>(x.cat||"").localeCompare(y.cat||"")||x.name.localeCompare(y.name));
   S=b.exists()?b.data():{};
-  cat=cats()[0]||"All";tabs();grid();info();
+  cat=cats()[0]||"All";cutSel=null;view();info();
   const bn=[S.show?S.wish:"",dpct()?`${S.fest||"Special offer"}: ${dpct()}% off${S.end?" until "+S.end:""}`:""].filter(Boolean).join("  |  ");
   if(bn){$("banner").textContent=bn;$("banner").hidden=false}
   if(S.banner)$("bnimg").src=S.banner
