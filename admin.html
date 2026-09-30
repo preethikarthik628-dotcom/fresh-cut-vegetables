@@ -40,6 +40,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-ra
 .tag.no{background:#f8d7d4}.tag.hid{background:#e5e5e5}.hint{color:var(--mut);font-size:13px;margin:4px 0 0}
 .bprev{width:100%;max-width:420px;aspect-ratio:16/6;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 .crow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.crow input{width:80px;padding:6px 8px}.crow span:first-child{font-weight:700;flex:1}.cpv{margin-top:8px}
+.bulk p{margin:4px 0}.bulk ul{margin:6px 0;padding-left:18px;font-size:14px;max-height:260px;overflow:auto}.bulk .bad{color:#b3261e}.fbtn{display:inline-block;cursor:pointer;margin:0 0 0 6px}.fbtn input{display:none}
 .prev{width:110px;height:110px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 </style>
 </head>
@@ -59,7 +60,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-ra
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getFirestore,collection,doc,addDoc,setDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,doc,addDoc,setDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 const app=initializeApp({apiKey:"AIzaSyATqn1InnyTkyHqIfbLw4LZQ4fGLzwf52A",authDomain:"freshcut-e85c7.firebaseapp.com",projectId:"freshcut-e85c7",storageBucket:"freshcut-e85c7.firebasestorage.app",messagingSenderId:"591946013615",appId:"1:591946013615:web:7812e8cd886d33e6992d5a"});
 const db=getFirestore(app),auth=getAuth(app);
@@ -69,6 +70,7 @@ const TABS=["Orders","Products","Services","Store Info","Reviews","Festival & Wi
 const FORMTABS=["Products","Services","Store Info","Reviews"];
 const cx=(p,c)=>{const v=(p.cutx||{})[c];return v!==undefined&&v!==""?Number(v):(p.cutAdd!==undefined?Number(p.cutAdd):5)};
 const CUTS=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
+let BU=null,BM="";
 let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false,bimg;
 
 $("lg").onclick=async()=>{$("lm").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lm").textContent="Wrong email or password."}};
@@ -91,7 +93,7 @@ function draw(){
  if(tab=="Products"){prev();cutRows()}
  if(tab=="Store Info")bprev();
 }
-$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";img="";bimg=undefined;$("view").innerHTML="";draw()}};
+$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";BU=null;BM="";img="";bimg=undefined;$("view").innerHTML="";draw()}};
 const wa=(ph,m)=>{ph=String(ph||"").replace(/\D/g,"");if(ph.length==10)ph="91"+ph;return "https://wa.me/"+ph+"?text="+encodeURIComponent(m)};
 
 function vOrders(){
@@ -111,7 +113,7 @@ function vProducts(){
  const e=P.find(p=>p.id==editId)||{};
  const ec=Array.isArray(e.cuts)?e.cuts:[];
  const other=ec.filter(c=>!CUTS.includes(c)).join(", ");
- return '<div class="box"><h2>'+(editId?"Edit product":"Add new product")+"</h2>"
+ return vBulk()+'<div class="box"><h2>'+(editId?"Edit product":"Add new product")+"</h2>"
  +'<label>Name</label><input id="pn" value="'+esc(e.name)+'">'
  +'<div class="g2"><div><label>Category</label><input id="pc" list="cl" value="'+esc(e.cat||"Vegetables")+'"><datalist id="cl">'+cats.map(c=>'<option value="'+esc(c)+'">').join("")+'</datalist></div>'
  +'<div><label>Pack size (e.g. 500 g)</label><input id="pu" value="'+esc(e.unit)+'"></div></div>'
@@ -133,6 +135,88 @@ function vProducts(){
  +'<label class="stk"><input type="checkbox" data-pa="'+p.id+'"'+(p.active===false?"":" checked")+'> In stock</label>'
  +'₹<input class="p" type="number" min="0" value="'+p.price+'" data-pr="'+p.id+'">'
  +'<button class="btn s" data-pe="'+p.id+'">Edit</button><button class="btn d" data-pd="'+p.id+'">Delete</button></div>').join("")+"</div>";
+}
+/* ---------- Bulk update with Excel ---------- */
+const XF=[["id","Product ID (do not change)"],["name","Name"],["cat","Category"],["unit","Pack size"],["price","Base price (₹)"],["cuts","Cutting types (separate with commas)"],["cutAdd","Cutting charge (₹)"],["cutx","Special cut charges (e.g. Grated=10)"],["active","In stock (Yes/No)"],["hide","Hide from store (Yes/No)"],["desc","What is inside"],["shelf","Best within"]];
+const XM={id:"product id",name:"name",cat:"category",unit:"pack size",price:"base price",cuts:"cutting type",cutAdd:"cutting charge",cutx:"special cut",active:"in stock",hide:"hide",desc:"what is inside",shelf:"best within"};
+const XL={name:"Name",cat:"Category",unit:"Pack size",price:"Price",cuts:"Cutting types",cutAdd:"Cutting charge",cutx:"Special cut charges",active:"In stock",hide:"Hidden",desc:"What is inside",shelf:"Best within"};
+function loadX(){return window.XLSX?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=ok;s.onerror=()=>no(new Error("load"));document.head.appendChild(s)})}
+const pcuts=p=>Array.isArray(p.cuts)?p.cuts.filter(Boolean):[];
+const norm=p=>({name:p.name||"",cat:p.cat||"",unit:p.unit||"",price:Number(p.price)||0,cuts:pcuts(p),cutAdd:p.cutAdd===undefined||p.cutAdd===""?5:Number(p.cutAdd),cutx:p.cutx||{},active:p.active!==false,hide:!!p.hide,desc:p.desc||"",shelf:p.shelf||""});
+function vBulk(){
+ let h='<div class="box bulk"><h2>Bulk update with Excel</h2><p class="hint">Download all your products as an Excel file, change prices, cutting types, stock and more for every product at once, then upload the file back here. Photos are not changed. To add a new product, fill a new row and leave the Product ID empty.</p>'
+ +'<div class="row" style="margin-top:10px"><button class="btn s" id="xd">⬇ Download Excel</button><label class="btn s fbtn">⬆ Upload edited Excel<input id="xu" type="file" accept=".xlsx,.xls,.csv"></label></div>';
+ if(BM)h+='<p class="msg ok" style="font-weight:700">'+esc(BM)+"</p>";
+ if(BU){
+  h+='<div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px"><h3>Check before saving: '+esc(BU.file)+"</h3>"
+  +"<p><b>"+BU.upd.length+"</b> product"+(BU.upd.length==1?"":"s")+" will be updated, <b>"+BU.add.length+"</b> new product"+(BU.add.length==1?"":"s")+" will be added, "+BU.same+" unchanged.</p>";
+  if(BU.err.length)h+='<p class="bad"><b>'+BU.err.length+" row"+(BU.err.length==1?"":"s")+" skipped because of a problem (fix them in Excel and upload again):</b></p><ul class=\"bad\">"+BU.err.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>";
+  if(BU.upd.length)h+="<p><b>Changes:</b></p><ul>"+BU.upd.map(u=>"<li><b>"+esc(u.label)+"</b>: "+esc(u.ch.join(", "))+"</li>").join("")+"</ul>";
+  if(BU.add.length)h+="<p><b>New products:</b></p><ul>"+BU.add.map(a=>"<li>"+esc(a.name)+" ("+esc(a.unit)+") ₹"+a.price+"</li>").join("")+"</ul>";
+  h+='<div class="row">'+(BU.upd.length||BU.add.length?'<button class="btn" id="xa">Save these changes</button>':"<p>Nothing to save.</p>")+' <button class="btn s" id="xc" style="margin-top:12px">Cancel</button></div></div>';
+ }
+ return h+"</div>";
+}
+async function xDown(){
+ try{await loadX()}catch(e){alert("Could not load the Excel tool. Check your internet and try again.");return}
+ const rows=[XF.map(f=>f[1])].concat(P.map(p=>{const n=norm(p);return[p.id,n.name,n.cat,n.unit,n.price,n.cuts.join(", "),n.cutAdd,Object.entries(n.cutx).filter(([k,v])=>v!==""&&v!=null).map(([k,v])=>k+"="+v).join(", "),n.active?"Yes":"No",n.hide?"Yes":"No",n.desc,n.shelf]}));
+ const ws=XLSX.utils.aoa_to_sheet(rows);
+ ws["!cols"]=[24,24,16,12,12,38,12,26,12,14,34,12].map(w=>({wch:w}));
+ ws["!autofilter"]={ref:"A1:L"+rows.length};
+ const help=[["How to use this file"],[""],["1. Change anything in the Products sheet: name, category, pack size, price, cutting types, stock and so on."],["2. Do not change or delete the Product ID column. It tells the website which product each row is."],["3. Cutting types: type one or more, separated by commas. Example: Sliced, Small cubes, Round slices"],["   Leave it empty if the product is sold without cutting. You can also type your own, like Thin sticks."],["4. Cutting charge: the extra ₹ added to the base price for every cutting type (usually 5)."],["5. Special cut charges: only if one cut costs a different extra amount. Example: Grated=10, Wedges=8"],["6. In stock / Hide from store: type Yes or No."],["7. New product: add a row at the bottom and leave Product ID empty."],["8. Deleting a row here does NOT delete the product. Delete products in the admin panel."],["9. Save the file, then in the admin panel go to Products > Upload edited Excel, check the list of changes and tap Save these changes."],[""],["Standard cutting types"]].concat(CUTS.map(c=>[c]));
+ const wh=XLSX.utils.aoa_to_sheet(help);wh["!cols"]=[{wch:110}];
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Products");XLSX.utils.book_append_sheet(wb,wh,"How to use");
+ XLSX.writeFile(wb,"FreshCut-products-"+new Date().toISOString().slice(0,10)+".xlsx");
+}
+async function xRead(f){
+ BM="";BU=null;
+ try{await loadX()}catch(e){alert("Could not load the Excel tool. Check your internet and try again.");return}
+ let A;try{const wb=XLSX.read(await f.arrayBuffer());const ws=wb.Sheets.Products||wb.Sheets[wb.SheetNames[0]];A=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true,blankrows:false})}catch(e){alert("Could not read this file. Please upload the Excel file you downloaded from here.");return}
+ const hd=(A[0]||[]).map(x=>String(x).trim().toLowerCase()),col={};
+ for(const k in XM){const i=hd.findIndex(x=>x.startsWith(XM[k]));if(i>=0)col[k]=i}
+ if(col.name===undefined||col.price===undefined){alert("This file does not have the Name and Base price columns. Please use the Excel file downloaded from here.");return}
+ const canon=c=>{const m=CUTS.find(x=>x.toLowerCase()==c.toLowerCase());return m||c};
+ const yn=(v,def)=>{v=String(v).trim().toLowerCase();if(v==="")return def;if(["yes","y","true","1"].includes(v))return true;if(["no","n","false","0"].includes(v))return false;return null};
+ const R={file:f.name,upd:[],add:[],err:[],same:0},seen=new Set();
+ for(let r=1;r<A.length;r++){
+  const row=A[r],g=k=>col[k]===undefined?undefined:String(row[col[k]]??"").trim();
+  if(!row.some(v=>String(v).trim()!==""))continue;
+  const at="Row "+(r+1)+(g("name")?" ("+g("name")+")":"")+": ";
+  const id=g("id")||"",old=id?P.find(p=>p.id==id):null;
+  if(id&&!old){R.err.push(at+"Product ID not found. The product may have been deleted. Clear the ID cell to add it as a new product.");continue}
+  if(id&&seen.has(id)){R.err.push(at+"this Product ID appears twice in the file.");continue}
+  if(id)seen.add(id);
+  const cur=old?norm(old):null,d={},bad=[];
+  const name=g("name");if(name!==undefined){if(!name)bad.push("name is empty");d.name=name}
+  const price=g("price");if(price!==undefined){const n=Number(price.replace(/[₹,\s]/g,""));if(price===""||isNaN(n)||n<0)bad.push("base price must be a number");else d.price=n}
+  if(g("cat")!==undefined)d.cat=g("cat")||"Products";
+  if(g("unit")!==undefined)d.unit=g("unit");
+  if(g("cuts")!==undefined)d.cuts=[...new Set(g("cuts").split(/[,;\n]/).map(x=>x.trim()).filter(Boolean).map(canon))];
+  const ca=g("cutAdd");if(ca!==undefined){if(ca==="")d.cutAdd=5;else{const n=Number(ca.replace(/[₹\s]/g,""));if(isNaN(n)||n<0)bad.push("cutting charge must be a number");else d.cutAdd=n}}
+  const sx=g("cutx");if(sx!==undefined){const o={};sx.split(/[,;\n]/).map(x=>x.trim()).filter(Boolean).forEach(x=>{const i=x.lastIndexOf("=");const n=i>0?Number(x.slice(i+1).replace(/[₹\s]/g,"")):NaN;if(i<1||isNaN(n)||n<0)bad.push('special cut charge "'+x+'" should look like Grated=10');else o[canon(x.slice(0,i).trim())]=n});d.cutx=o}
+  const ac=g("active");if(ac!==undefined){const v=yn(ac,true);if(v===null)bad.push("In stock must be Yes or No");else d.active=v}
+  const hi=g("hide");if(hi!==undefined){const v=yn(hi,false);if(v===null)bad.push("Hide from store must be Yes or No");else d.hide=v}
+  if(g("desc")!==undefined)d.desc=g("desc");
+  if(g("shelf")!==undefined)d.shelf=g("shelf");
+  if(bad.length){R.err.push(at+bad.join("; ")+".");continue}
+  if(old){
+   const ch={},names=[];
+   for(const k in d)if(JSON.stringify(d[k])!==JSON.stringify(cur[k])){ch[k]=d[k];names.push(k=="price"?"Price ₹"+cur.price+" → ₹"+d.price:k=="cuts"?"Cutting types: "+(d.cuts.join(", ")||"none"):k=="active"?(d.active?"In stock":"Out of stock"):k=="hide"?(d.hide?"Hidden":"Shown"):XL[k])}
+   if(names.length)R.upd.push({id,label:(d.name||cur.name)+(cur.unit?" ("+(d.unit??cur.unit)+")":""),ch:names,data:ch});else R.same++;
+  }else{
+   R.add.push(Object.assign({name:"",cat:"Products",unit:"",price:0,cuts:[],cutAdd:5,cutx:{},active:true,hide:false,desc:"",shelf:"",img:""},d));
+  }
+ }
+ BU=R;
+}
+async function xApply(){
+ const b=$("xa");if(b){b.disabled=true;b.textContent="Saving…"}
+ const ops=BU.upd.map(u=>["u",u]).concat(BU.add.map(a=>["a",a]));
+ try{
+  for(let i=0;i<ops.length;i+=400){const wb=writeBatch(db);ops.slice(i,i+400).forEach(([t,x])=>t=="u"?wb.update(doc(db,"products",x.id),x.data):wb.set(doc(collection(db,"products")),x));await wb.commit()}
+  BM="Saved. "+BU.upd.length+" updated, "+BU.add.length+" added. The website is updated.";BU=null;
+ }catch(e){console.error(e);alert("Could not save. Nothing was changed. Please check your internet or the Firestore rules and try again.");if(b){b.disabled=false;b.textContent="Save these changes"}return}
+ $("view").innerHTML="";draw();
 }
 function cutRows(){
  const box=$("cpv");if(!box)return;
@@ -195,6 +279,7 @@ document.addEventListener("change",async e=>{
  if(t.dataset.os)await updateDoc(doc(db,"orders",t.dataset.os),{status:t.value});
  if(t.dataset.pa)await updateDoc(doc(db,"products",t.dataset.pa),{active:t.checked});
  if(t.dataset.pr)await updateDoc(doc(db,"products",t.dataset.pr),{price:Number(t.value)||0});
+ if(t.id=="xu"&&t.files[0]){await xRead(t.files[0]);$("view").innerHTML="";draw()}
  if(t.id=="pf"&&t.files[0]){img=await shrink(t.files[0]);prev()}
  if(t.id=="ib"&&t.files[0]){bimg=await shrink(t.files[0],1400,.7);bprev()}
 });
@@ -204,6 +289,9 @@ document.addEventListener("click",async e=>{
  if(d.pe){editId=d.pe;img="";$("view").innerHTML="";draw();scrollTo(0,0)}
  if(d.pd&&confirm("Delete this product?"))await deleteDoc(doc(db,"products",d.pd));
  if(d.sd&&confirm("Delete this service?"))await deleteDoc(doc(db,"services",d.sd));
+ if(t.id=="xd")xDown();
+ if(t.id=="xa")xApply();
+ if(t.id=="xc"){BU=null;$("view").innerHTML="";draw()}
  if(t.id=="pcx"){editId="";img="";$("view").innerHTML="";draw()}
  if(t.id=="ps"){
   const n=$("pn").value.trim();if(!n||$("pp").value===""){alert("Please enter a name and price.");return}
