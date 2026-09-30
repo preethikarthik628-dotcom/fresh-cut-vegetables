@@ -41,6 +41,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #c9d1bd;border-ra
 .bprev{width:100%;max-width:420px;aspect-ratio:16/6;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 .crow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.crow input{width:80px;padding:6px 8px}.crow span:first-child{font-weight:700;flex:1}.cpv{margin-top:8px}
 .bulk p{margin:4px 0}.bulk ul{margin:6px 0;padding-left:18px;font-size:14px;max-height:260px;overflow:auto}.bulk .bad{color:#b3261e}.fbtn{display:inline-block;cursor:pointer;margin:0 0 0 6px}.fbtn input{display:none}
+.cpg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}.cpc{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.cpc .ci{aspect-ratio:4/3;display:grid;place-items:center;background:linear-gradient(160deg,#f1f8e8,#fff6d8);font-size:44px}.cpc .ci img{width:100%;height:100%;object-fit:cover}.cpc .cb{padding:10px}.cpc .cb b{display:block}.cpc .cb small{color:var(--mut)}.cpc .row{margin-top:8px;gap:6px}
 .prev{width:110px;height:110px;object-fit:cover;border-radius:12px;margin-top:8px;display:none}
 </style>
 </head>
@@ -66,11 +67,11 @@ const app=initializeApp({apiKey:"AIzaSyATqn1InnyTkyHqIfbLw4LZQ4fGLzwf52A",authDo
 const db=getFirestore(app),auth=getAuth(app);
 const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const TABS=["Orders","Products","Services","Store Info","Reviews","Festival & Wishes"];
+const TABS=["Orders","Products","Cutting Photos","Services","Store Info","Reviews","Festival & Wishes"];
 const FORMTABS=["Products","Services","Store Info","Reviews"];
 const cx=(p,c)=>{const v=(p.cutx||{})[c];return v!==undefined&&v!==""?Number(v):(p.cutAdd!==undefined?Number(p.cutAdd):5)};
 const CUTS=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
-let BU=null,BM="";
+let BU=null,BM="",CP={},CPL=[],CPM="";
 let tab="Orders",P=[],O=[],S=[],ST={},img="",editId="",started=false,bimg;
 
 $("lg").onclick=async()=>{$("lm").textContent="";try{await signInWithEmailAndPassword(auth,$("em").value.trim(),$("pw").value)}catch(e){$("lm").textContent="Wrong email or password."}};
@@ -84,16 +85,17 @@ function listen(){
  onSnapshot(collection(db,"products"),s=>{P=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.cat).localeCompare(b.cat)||String(a.name).localeCompare(b.name));draw()},err);
  onSnapshot(collection(db,"services"),s=>{S=s.docs.map(d=>({id:d.id,...d.data()}));draw()},err);
  onSnapshot(collection(db,"orders"),s=>{O=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));draw()},err);
+ onSnapshot(doc(db,"settings","cutphotos"),s=>{CP=(s.exists()&&s.data().imgs)||{};if(tab=="Cutting Photos")draw()},e=>console.error(e));
  onSnapshot(doc(db,"settings","site"),s=>{ST=s.exists()?s.data():{};if((tab.startsWith("Fest")||tab=="Store Info"||tab=="Reviews")&&!document.activeElement.closest?.("#view"))draw()},err);
 }
 function draw(){
  $("tabs").innerHTML=TABS.map(t=>'<button class="tab'+(t==tab?" on":"")+'" data-t="'+t+'">'+t+(t=="Orders"?" ("+O.filter(o=>o.status=="New").length+" new)":"")+"</button>").join("");
  if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#view")&&(FORMTABS.includes(tab)||tab.startsWith("Fest"))&&document.activeElement.tagName!=="BODY")return;
- $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Services"?vServices():tab=="Store Info"?vInfo():tab=="Reviews"?vReviews():vFest();
+ $("view").innerHTML=tab=="Orders"?vOrders():tab=="Products"?vProducts():tab=="Cutting Photos"?vCutPhotos():tab=="Services"?vServices():tab=="Store Info"?vInfo():tab=="Reviews"?vReviews():vFest();
  if(tab=="Products"){prev();cutRows()}
  if(tab=="Store Info")bprev();
 }
-$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";BU=null;BM="";img="";bimg=undefined;$("view").innerHTML="";draw()}};
+$("tabs").onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;editId="";BU=null;BM="";CPM="";img="";bimg=undefined;$("view").innerHTML="";draw()}};
 const wa=(ph,m)=>{ph=String(ph||"").replace(/\D/g,"");if(ph.length==10)ph="91"+ph;return "https://wa.me/"+ph+"?text="+encodeURIComponent(m)};
 
 function vOrders(){
@@ -218,6 +220,24 @@ async function xApply(){
  }catch(e){console.error(e);alert("Could not save. Nothing was changed. Please check your internet or the Firestore rules and try again.");if(b){b.disabled=false;b.textContent="Save these changes"}return}
  $("view").innerHTML="";draw();
 }
+const NOCUT="As it is (no cutting)";
+function vCutPhotos(){
+ const custom=[...new Set(P.flatMap(p=>Array.isArray(p.cuts)?p.cuts:[]))].filter(c=>c&&!CUTS.includes(c));
+ CPL=[...CUTS,...custom];if(P.some(p=>!(Array.isArray(p.cuts)&&p.cuts.length)))CPL.push(NOCUT);
+ Object.keys(CP).forEach(k=>{if(!CPL.includes(k))CPL.push(k)});
+ const cnt=c=>P.filter(p=>c==NOCUT?!(Array.isArray(p.cuts)&&p.cuts.length):(Array.isArray(p.cuts)&&p.cuts.includes(c))).length;
+ const kb=Math.round(JSON.stringify(CP).length/1024);
+ return '<div class="box"><h2>Cutting type photos</h2><p class="hint">This is the main picture on each cutting type card in the Shop. Tap Choose photo for a cutting type; it saves straight away. If a cutting type has no photo here, the store uses a product photo, or ✂️ if there is none. Use your own photos, or ones you have the right to use.</p>'
+ +(CPM?'<p class="msg'+(CPM.startsWith("Could")?"":" ok")+'" style="font-weight:700">'+esc(CPM)+"</p>":"")
+ +'<div class="cpg" style="margin-top:12px">'+CPL.map((c,i)=>{const n=cnt(c);return '<div class="cpc"><div class="ci">'+(CP[c]?'<img src="'+CP[c]+'" alt="">':"✂️")+'</div><div class="cb"><b>'+esc(c)+"</b><small>"+(n?n+" product"+(n>1?"s":""):"Not used by any product yet")+(CP[c]?" · photo set":"")+'</small><div class="row"><label class="btn s fbtn" style="margin:0">'+(CP[c]?"Change photo":"Choose photo")+'<input type="file" accept="image/*" data-cp="'+i+'"></label>'+(CP[c]?'<button class="btn d" data-cpx="'+i+'">Remove</button>':"")+"</div></div></div>"}).join("")+"</div>"
+ +'<p class="hint" style="margin-top:10px">Photo storage used: about '+kb+' KB of 900 KB.</p></div>';
+}
+async function cpSave(next,msg){
+ if(JSON.stringify(next).length>900*1024){alert("Too many large photos. Remove one photo, or use smaller photos.");return}
+ try{await setDoc(doc(db,"settings","cutphotos"),{imgs:next});CP=next;CPM=msg}
+ catch(e){console.error(e);CPM="Could not save. Your Firestore rules may not allow the settings/cutphotos document yet (see the note from Claude)."}
+ $("view").innerHTML="";draw();
+}
 function cutRows(){
  const box=$("cpv");if(!box)return;
  const old={};box.querySelectorAll(".cutov").forEach(i=>old[i.dataset.c]=i.value);
@@ -279,6 +299,7 @@ document.addEventListener("change",async e=>{
  if(t.dataset.os)await updateDoc(doc(db,"orders",t.dataset.os),{status:t.value});
  if(t.dataset.pa)await updateDoc(doc(db,"products",t.dataset.pa),{active:t.checked});
  if(t.dataset.pr)await updateDoc(doc(db,"products",t.dataset.pr),{price:Number(t.value)||0});
+ if(t.dataset.cp!==undefined&&t.files[0]){const c=CPL[+t.dataset.cp];CPM="Saving photo…";const im=await shrink(t.files[0],520,.72);await cpSave({...CP,[c]:im},"Saved. The "+c+" card on the store now shows this photo.")}
  if(t.id=="xu"&&t.files[0]){await xRead(t.files[0]);$("view").innerHTML="";draw()}
  if(t.id=="pf"&&t.files[0]){img=await shrink(t.files[0]);prev()}
  if(t.id=="ib"&&t.files[0]){bimg=await shrink(t.files[0],1400,.7);bprev()}
@@ -289,6 +310,7 @@ document.addEventListener("click",async e=>{
  if(d.pe){editId=d.pe;img="";$("view").innerHTML="";draw();scrollTo(0,0)}
  if(d.pd&&confirm("Delete this product?"))await deleteDoc(doc(db,"products",d.pd));
  if(d.sd&&confirm("Delete this service?"))await deleteDoc(doc(db,"services",d.sd));
+ if(d.cpx!==undefined){const c=CPL[+d.cpx];if(confirm("Remove the photo for "+c+"?")){const n={...CP};delete n[c];await cpSave(n,"Photo removed for "+c+".")}}
  if(t.id=="xd")xDown();
  if(t.id=="xa")xApply();
  if(t.id=="xc"){BU=null;$("view").innerHTML="";draw()}

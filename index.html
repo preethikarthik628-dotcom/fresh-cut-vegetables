@@ -241,7 +241,7 @@ const PHONE="918123806957";
 const $=i=>document.getElementById(i);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=(v,d)=>{const n=Number(v);return v===undefined||v===null||v===""||isNaN(n)?d:n};
-let P=[],S={},cart={},cat="All",cutSel=null,qrOK=false;
+let CPH={},P=[],S={},cart={},cat="All",cutSel=null,qrOK=false;
 const NONE="__none",ORDER=["Sliced","Long strips","Small cubes","Round slices","Fine chop","Wedges","Grated","Whole (peeled)"];
 const DEL=()=>num(S.delCharge,20),FREE=()=>num(S.freeAbove,150),MIN=()=>num(S.minOrder,0);
 const today=()=>new Date().toLocaleDateString("en-CA");
@@ -275,7 +275,7 @@ function view(){
 function tiles(){
  $("crumb").innerHTML="";
  const l=allCuts().map(k=>({k,items:P.filter(p=>inCat(p)&&has(p,k))})).filter(x=>x.items.length);
- $("grid").innerHTML=l.map(x=>{const im=x.items.find(p=>p.img),n=x.items.length;
+ $("grid").innerHTML=l.map(x=>{const ph=CPH[cutName(x.k)],pi=x.items.find(p=>p.img),im=ph?{img:ph}:pi,n=x.items.length;
   return `<button class="ctile" data-a="pick" data-c="${esc(x.k)}"><span class="cimg">${im?`<img src="${im.img}" alt="" loading="lazy">`:"✂️"}</span><b>${esc(cutName(x.k))}</b><small>${n} item${n>1?"s":""}</small></button>`}).join("")||'<p class="empty">No items in this category yet.</p>';
 }
 function grid(){
@@ -369,6 +369,7 @@ async function load(){
   P=a.docs.map(d=>({id:d.id,...d.data()})).filter(p=>!p.hide).sort((x,y)=>(x.cat||"").localeCompare(y.cat||"")||x.name.localeCompare(y.name));
   S=b.exists()?b.data():{};
   cat=cats()[0]||"All";cutSel=null;view();info();
+  getDoc(doc(db,"settings","cutphotos")).then(s=>{CPH=(s.exists()&&s.data().imgs)||{};if(cutSel===null)view()}).catch(e=>console.warn(e));
   const bn=[S.show?S.wish:"",dpct()?`${S.fest||"Special offer"}: ${dpct()}% off${S.end?" until "+S.end:""}`:""].filter(Boolean).join("  |  ");
   if(bn){$("banner").textContent=bn;$("banner").hidden=false}
   if(S.banner)$("bnimg").src=S.banner
